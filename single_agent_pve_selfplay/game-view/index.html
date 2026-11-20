@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SwarmBrain 游戏视图</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="./app.js"></script>
+  </head>
+  <body>
+    <main class="screen-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">本地游戏视图</p>
+          <h1>SwarmBrain 战术监视器</h1>
+        </div>
+        <div class="status-strip">
+          <span id="live-badge" class="badge idle">空闲</span>
+          <span id="updated-at" class="badge ghost">--</span>
+        </div>
+      </header>
+
+      <section class="hud-grid">
+        <article class="hud-card">
+          <span>出生点</span>
+          <strong id="stat-start">--</strong>
+        </article>
+        <article class="hud-card">
+          <span>阶段</span>
+          <strong id="stat-stage">--</strong>
+        </article>
+        <article class="hud-card">
+          <span>时间</span>
+          <strong id="stat-time">--:--</strong>
+        </article>
+        <article class="hud-card">
+          <span>补给</span>
+          <strong id="stat-supply">0 / 0</strong>
+        </article>
+        <article class="hud-card">
+          <span>工人</span>
+          <strong id="stat-workers">0</strong>
+        </article>
+        <article class="hud-card">
+          <span>军队</span>
+          <strong id="stat-army">0</strong>
+        </article>
+      </section>
+
+      <section class="main-grid">
+        <section class="hero-panel">
+          <div class="hero-head">
+            <div>
+              <p class="panel-tag">主画面</p>
+              <h2 id="hero-title">等待帧数据</h2>
+            </div>
+            <span id="hero-meta" class="panel-meta">暂无帧数据</span>
+          </div>
+
+          <div class="hero-frame">
+            <img id="hero-image" alt="主战术画面" />
+            <div id="hero-empty" class="hero-empty">
+              <div class="scan-ring"></div>
+              <div>
+                <h3>等待实时特征数据</h3>
+                <p>当前对局导出新的帧后，这里会自动切换到实时画面。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="side-panel">
+          <section class="mini-panel">
+            <div class="mini-head">
+              <p class="panel-tag">五张卡片</p>
+              <h2>特征图带</h2>
+            </div>
+            <div id="thumb-grid" class="thumb-grid"></div>
+          </section>
+
+          <section class="mini-panel">
+            <div class="mini-head">
+              <p class="panel-tag">最新回复</p>
+              <h2 id="message-title">暂无消息</h2>
+            </div>
+            <pre id="message-content" class="message-box">等待下一条大模型回复...</pre>
+          </section>
+
+          <section class="mini-panel">
+            <div class="mini-head">
+              <p class="panel-tag">指令队列</p>
+              <h2>指令列表</h2>
+            </div>
+            <div id="command-list" class="command-list"></div>
+          </section>
+        </aside>
+      </section>
+    </main>
+  </body>
+</html>

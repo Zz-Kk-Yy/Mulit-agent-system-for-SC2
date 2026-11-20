@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1860" viewBox="0 0 1440 1860" role="img" aria-label="系统总体技术架构图">
+<style>text { font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif; }</style>
+
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 1.2 L 8 5 L 0 8.8 Z" fill="#0f6e6a"/>
+  </marker>
+</defs>
+
+<rect x="0" y="0" width="1440" height="1860" rx="0" fill="#f3f6f5" stroke="none" stroke-width="0"/>
+<rect x="36" y="28" width="1368" height="118" rx="18" fill="#14343c" stroke="#14343c" stroke-width="0"/>
+<text x="60" y="74" fill="#f4faf8" font-size="32" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">系统总体技术架构图</text>
+<text x="60" y="108" fill="#c5ddd8" font-size="15" font-weight="400" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">六层纵向主路径。实线是当前原型已实现的能力，虚线是尚未上线的扩展。</text>
+<rect x="900" y="58" width="28" height="16" rx="4" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.8"/>
+<text x="938" y="72" fill="#f4faf8" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">已实现</text>
+<rect x="1030" y="58" width="28" height="16" rx="4" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.5" stroke-dasharray="5 3"/>
+<text x="1068" y="72" fill="#f4faf8" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">拟扩展</text>
+<text x="900" y="108" fill="#d7c4b2" font-size="13" font-weight="400" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">虚线不进入当前主路径</text>
+<rect x="36" y="170" width="1044" height="232" rx="16" fill="#ffffff" stroke="#d5e0dc" stroke-width="1.2"/>
+<rect x="36" y="170" width="8" height="232" rx="4" fill="#0f6e6a" stroke="#0f6e6a" stroke-width="0"/>
+<circle cx="76" cy="202" r="14" fill="#0f6e6a"/>
+<text x="76" y="207" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle" font-family="Microsoft YaHei, Segoe UI, sans-serif">01</text>
+<text x="100" y="208" fill="#14343c" font-size="20" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">多源数据 / 物联接入</text>
+<text x="466" y="208" fill="#5d6b72" font-size="13" font-weight="400" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">现阶段只有合成回放</text>
+<rect x="56" y="226" width="612" height="160" rx="12" fill="#f8fbfa" stroke="#0f6e6a" stroke-width="1.4"/>
+<rect x="680" y="226" width="380" height="160" rx="12" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.4" stroke-dasharray="7 5"/>
+<text x="70" y="250" fill="#0f6e6a" font-size="13" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">已实现</text>
+<text x="694" y="250" fill="#8d6240" font-size="13" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">拟扩展</text>
+<rect x="70.0" y="262" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="82.0" y="284.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">合成快照</text>
+<rect x="366.0" y="262" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="378.0" y="284.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">水深、雨量、潮位</text>
+<rect x="70.0" y="304" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="82.0" y="326.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">泵站故障标志</text>
+<rect x="366.0" y="304" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="378.0" y="326.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">M01–M04 序列</text>
+<rect x="694" y="262" width="352" height="34" rx="8" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="706" y="284.0" fill="#8d6240" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">实时物联接入</text>
+<rect x="694" y="304" width="352" height="34" rx="8" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="706" y="326.0" fill="#8d6240" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">雨量与潮位实况</text>
+<rect x="694" y="346" width="352" height="34" rx="8" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="706" y="368.0" fill="#8d6240" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">泵站与管网遥测</text>
+<line x1="362.0" y1="404" x2="362.0" y2="422" stroke="#0f6e6a" stroke-width="2.2" marker-end="url(#arrow)"/>
+<rect x="36" y="426" width="1044" height="232" rx="16" fill="#ffffff" stroke="#d5e0dc" stroke-width="1.2"/>
+<rect x="36" y="426" width="8" height="232" rx="4" fill="#0f6e6a" stroke="#0f6e6a" stroke-width="0"/>
+<circle cx="76" cy="458" r="14" fill="#0f6e6a"/>
+<text x="76" y="463" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle" font-family="Microsoft YaHei, Segoe UI, sans-serif">02</text>
+<text x="100" y="464" fill="#14343c" font-size="20" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">数据质量与时空治理</text>
+<text x="466" y="464" fill="#5d6b72" font-size="13" font-weight="400" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">时间、坐标、缺测分开处理</text>
+<rect x="56" y="482" width="612" height="160" rx="12" fill="#f8fbfa" stroke="#0f6e6a" stroke-width="1.4"/>
+<rect x="680" y="482" width="380" height="160" rx="12" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.4" stroke-dasharray="7 5"/>
+<text x="70" y="506" fill="#0f6e6a" font-size="13" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">已实现</text>
+<text x="694" y="506" fill="#8d6240" font-size="13" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">拟扩展</text>
+<rect x="70.0" y="518" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="82.0" y="540.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">快照冻结</text>
+<rect x="366.0" y="518" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="378.0" y="540.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">质量标记</text>
+<rect x="70.0" y="560" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="82.0" y="582.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">三种时间分开</text>
+<rect x="366.0" y="560" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="378.0" y="582.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">核验坐标才上图</text>
+<rect x="70" y="602" width="584" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="82" y="624.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">缺测不填 0</text>
+<rect x="694" y="518" width="352" height="34" rx="8" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="706" y="540.0" fill="#8d6240" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">河湖与管网几何</text>
+<rect x="694" y="560" width="352" height="34" rx="8" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="706" y="582.0" fill="#8d6240" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">地理编码补点</text>
+<rect x="694" y="602" width="352" height="34" rx="8" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="706" y="624.0" fill="#8d6240" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">时空数据中台</text>
+<line x1="362.0" y1="660" x2="362.0" y2="678" stroke="#0f6e6a" stroke-width="2.2" marker-end="url(#arrow)"/>
+<rect x="36" y="682" width="1044" height="232" rx="16" fill="#ffffff" stroke="#d5e0dc" stroke-width="1.2"/>
+<rect x="36" y="682" width="8" height="232" rx="4" fill="#0f6e6a" stroke="#0f6e6a" stroke-width="0"/>
+<circle cx="76" cy="714" r="14" fill="#0f6e6a"/>
+<text x="76" y="719" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle" font-family="Microsoft YaHei, Segoe UI, sans-serif">03</text>
+<text x="100" y="720" fill="#14343c" font-size="20" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">规则研判</text>
+<text x="466" y="720" fill="#5d6b72" font-size="13" font-weight="400" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">等级由规则给出，不由模型改写</text>
+<rect x="56" y="738" width="612" height="160" rx="12" fill="#f8fbfa" stroke="#0f6e6a" stroke-width="1.4"/>
+<rect x="680" y="738" width="380" height="160" rx="12" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.4" stroke-dasharray="7 5"/>
+<text x="70" y="762" fill="#0f6e6a" font-size="13" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">已实现</text>
+<text x="694" y="762" fill="#8d6240" font-size="13" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">拟扩展</text>
+<rect x="70.0" y="774" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="82.0" y="796.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">六步规则链</text>
+<rect x="366.0" y="774" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="378.0" y="796.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">无风险 / 关注 / 警戒</text>
+<rect x="70.0" y="816" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="82.0" y="838.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">演练警戒线 1.50 m</text>
+<rect x="366.0" y="816" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="378.0" y="838.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">升速外推，非预报</text>
+<rect x="694" y="774" width="352" height="34" rx="8" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="706" y="796.0" fill="#8d6240" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">正式风险规则配置</text>
+<rect x="694" y="816" width="352" height="34" rx="8" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="706" y="838.0" fill="#8d6240" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">水文水力仿真</text>
+<line x1="362.0" y1="916" x2="362.0" y2="934" stroke="#0f6e6a" stroke-width="2.2" marker-end="url(#arrow)"/>
+<rect x="36" y="938" width="1044" height="232" rx="16" fill="#ffffff" stroke="#d5e0dc" stroke-width="1.2"/>
+<rect x="36" y="938" width="8" height="232" rx="4" fill="#0f6e6a" stroke="#0f6e6a" stroke-width="0"/>
+<circle cx="76" cy="970" r="14" fill="#0f6e6a"/>
+<text x="76" y="975" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle" font-family="Microsoft YaHei, Segoe UI, sans-serif">04</text>
+<text x="100" y="976" fill="#14343c" font-size="20" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">大模型受约束解释</text>
+<text x="466" y="976" fill="#5d6b72" font-size="13" font-weight="400" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">只解释已有规则和证据</text>
+<rect x="56" y="994" width="612" height="160" rx="12" fill="#f8fbfa" stroke="#0f6e6a" stroke-width="1.4"/>
+<rect x="680" y="994" width="380" height="160" rx="12" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.4" stroke-dasharray="7 5"/>
+<text x="70" y="1018" fill="#0f6e6a" font-size="13" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">已实现</text>
+<text x="694" y="1018" fill="#8d6240" font-size="13" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">拟扩展</text>
+<rect x="70.0" y="1030" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="82.0" y="1052.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">服务端持有密钥</text>
+<rect x="366.0" y="1030" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="378.0" y="1052.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">只解释规则参考</text>
+<rect x="70.0" y="1072" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="82.0" y="1094.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">禁用词整段弃用</text>
+<rect x="366.0" y="1072" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="378.0" y="1094.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">成因、风险、预案</text>
+<rect x="70" y="1114" width="584" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="82" y="1136.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">不改值、不改等级、不派发</text>
+<rect x="694" y="1030" width="352" height="34" rx="8" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="706" y="1052.0" fill="#8d6240" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">异步研判任务</text>
+<rect x="694" y="1072" width="352" height="34" rx="8" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="706" y="1094.0" fill="#8d6240" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">提示词版本治理</text>
+<line x1="362.0" y1="1172" x2="362.0" y2="1190" stroke="#0f6e6a" stroke-width="2.2" marker-end="url(#arrow)"/>
+<rect x="36" y="1194" width="1044" height="232" rx="16" fill="#ffffff" stroke="#d5e0dc" stroke-width="1.2"/>
+<rect x="36" y="1194" width="8" height="232" rx="4" fill="#0f6e6a" stroke="#0f6e6a" stroke-width="0"/>
+<circle cx="76" cy="1226" r="14" fill="#0f6e6a"/>
+<text x="76" y="1231" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle" font-family="Microsoft YaHei, Segoe UI, sans-serif">05</text>
+<text x="100" y="1232" fill="#14343c" font-size="20" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">方案演练</text>
+<text x="466" y="1232" fill="#5d6b72" font-size="13" font-weight="400" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">演练不控制真实设备</text>
+<rect x="56" y="1250" width="612" height="160" rx="12" fill="#f8fbfa" stroke="#0f6e6a" stroke-width="1.4"/>
+<rect x="680" y="1250" width="380" height="160" rx="12" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.4" stroke-dasharray="7 5"/>
+<text x="70" y="1274" fill="#0f6e6a" font-size="13" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">已实现</text>
+<text x="694" y="1274" fill="#8d6240" font-size="13" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">拟扩展</text>
+<rect x="70.0" y="1286" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="82.0" y="1308.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">方案 A / B 并排</text>
+<rect x="366.0" y="1286" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="378.0" y="1308.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">同意、演练、登记</text>
+<rect x="70.0" y="1328" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="82.0" y="1350.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">成功 / 失败 / 部分 / 受阻</text>
+<rect x="366.0" y="1328" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="378.0" y="1350.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">情景只记参数</text>
+<rect x="694" y="1286" width="352" height="34" rx="8" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="706" y="1308.0" fill="#8d6240" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">真实设备控制</text>
+<rect x="694" y="1328" width="352" height="34" rx="8" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="706" y="1350.0" fill="#8d6240" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">淹没图、峰值、退水时长</text>
+<rect x="694" y="1370" width="352" height="34" rx="8" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="706" y="1392.0" fill="#8d6240" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">到达时间与路线</text>
+<line x1="362.0" y1="1428" x2="362.0" y2="1446" stroke="#0f6e6a" stroke-width="2.2" marker-end="url(#arrow)"/>
+<rect x="36" y="1450" width="1044" height="232" rx="16" fill="#ffffff" stroke="#d5e0dc" stroke-width="1.2"/>
+<rect x="36" y="1450" width="8" height="232" rx="4" fill="#0f6e6a" stroke="#0f6e6a" stroke-width="0"/>
+<circle cx="76" cy="1482" r="14" fill="#0f6e6a"/>
+<text x="76" y="1487" fill="#ffffff" font-size="12" font-weight="700" text-anchor="middle" font-family="Microsoft YaHei, Segoe UI, sans-serif">06</text>
+<text x="100" y="1488" fill="#14343c" font-size="20" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">历史复盘</text>
+<text x="466" y="1488" fill="#5d6b72" font-size="13" font-weight="400" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">同快照再分析不是新的观测</text>
+<rect x="56" y="1506" width="612" height="160" rx="12" fill="#f8fbfa" stroke="#0f6e6a" stroke-width="1.4"/>
+<rect x="680" y="1506" width="380" height="160" rx="12" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.4" stroke-dasharray="7 5"/>
+<text x="70" y="1530" fill="#0f6e6a" font-size="13" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">已实现</text>
+<text x="694" y="1530" fill="#8d6240" font-size="13" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">拟扩展</text>
+<rect x="70.0" y="1542" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="82.0" y="1564.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">轮次与事件时间线</text>
+<rect x="366.0" y="1542" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="378.0" y="1564.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">同快照再分析</text>
+<rect x="70.0" y="1584" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="82.0" y="1606.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">两轮差异比较</text>
+<rect x="366.0" y="1584" width="288.0" height="34" rx="8" fill="#e7f4f2" stroke="#0f6e6a" stroke-width="1.6"/>
+<text x="378.0" y="1606.0" fill="#0f6e6a" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">处置记录分时保存</text>
+<rect x="694" y="1542" width="352" height="34" rx="8" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="706" y="1564.0" fill="#8d6240" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">结论与现场自动对照</text>
+<rect x="694" y="1584" width="352" height="34" rx="8" fill="#fbf6ef" stroke="#8d6240" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="706" y="1606.0" fill="#8d6240" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">跨事件长期复盘</text>
+<rect x="1096" y="170" width="308" height="1512" rx="16" fill="#14343c" stroke="#14343c" stroke-width="0"/>
+<text x="1116" y="198" fill="#9fd0c8" font-size="12" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">旁侧贯穿</text>
+<text x="1116" y="224" fill="#f4faf8" font-size="18" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">证据留痕、权限与审计</text>
+<text x="1116" y="248" fill="#c5ddd8" font-size="12" font-weight="400" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">跟着每一层走，不单独成为第七层。</text>
+<line x1="1114" y1="286.0" x2="1114" y2="1566.0" stroke="#7dcec4" stroke-width="1.6"/>
+<line x1="1080" y1="286.0" x2="1114" y2="286.0" stroke="#0f6e6a" stroke-width="1.6"/>
+<circle cx="1114" cy="286.0" r="4.5" fill="#7dcec4"/>
+<rect x="1128" y="268.0" width="256" height="36" rx="8" fill="#1d4c52" stroke="#7dcec4" stroke-width="1.4"/>
+<text x="1142" y="291.0" fill="#f4faf8" font-size="13" font-weight="500" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">来源记为合成回放</text>
+<line x1="1080" y1="542.0" x2="1114" y2="542.0" stroke="#0f6e6a" stroke-width="1.6"/>
+<circle cx="1114" cy="542.0" r="4.5" fill="#7dcec4"/>
+<rect x="1128" y="524.0" width="256" height="36" rx="8" fill="#1d4c52" stroke="#7dcec4" stroke-width="1.4"/>
+<text x="1142" y="547.0" fill="#f4faf8" font-size="13" font-weight="500" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">质量、坐标、缺测留痕</text>
+<line x1="1080" y1="798.0" x2="1114" y2="798.0" stroke="#0f6e6a" stroke-width="1.6"/>
+<circle cx="1114" cy="798.0" r="4.5" fill="#7dcec4"/>
+<rect x="1128" y="780.0" width="256" height="36" rx="8" fill="#1d4c52" stroke="#7dcec4" stroke-width="1.4"/>
+<text x="1142" y="803.0" fill="#f4faf8" font-size="13" font-weight="500" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">规则等级与外推口径留痕</text>
+<line x1="1080" y1="1054.0" x2="1114" y2="1054.0" stroke="#0f6e6a" stroke-width="1.6"/>
+<circle cx="1114" cy="1054.0" r="4.5" fill="#7dcec4"/>
+<rect x="1128" y="1036.0" width="256" height="36" rx="8" fill="#1d4c52" stroke="#7dcec4" stroke-width="1.4"/>
+<text x="1142" y="1059.0" fill="#f4faf8" font-size="13" font-weight="500" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">模型审计不含密钥</text>
+<line x1="1080" y1="1310.0" x2="1114" y2="1310.0" stroke="#0f6e6a" stroke-width="1.6"/>
+<circle cx="1114" cy="1310.0" r="4.5" fill="#7dcec4"/>
+<rect x="1128" y="1292.0" width="256" height="36" rx="8" fill="#1d4c52" stroke="#7dcec4" stroke-width="1.4"/>
+<text x="1142" y="1315.0" fill="#f4faf8" font-size="13" font-weight="500" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">审批、演练、回执分时留痕</text>
+<line x1="1080" y1="1566.0" x2="1114" y2="1566.0" stroke="#0f6e6a" stroke-width="1.6"/>
+<circle cx="1114" cy="1566.0" r="4.5" fill="#7dcec4"/>
+<rect x="1128" y="1548.0" width="256" height="36" rx="8" fill="#1d4c52" stroke="#7dcec4" stroke-width="1.4"/>
+<text x="1142" y="1571.0" fill="#f4faf8" font-size="13" font-weight="500" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">轮次差异可回溯</text>
+<rect x="1116" y="1594.0" width="268" height="72" rx="10" fill="#1a3036" stroke="#d7b08a" stroke-width="1.5" stroke-dasharray="6 4"/>
+<text x="1130" y="1616.0" fill="#e7c7a8" font-size="12" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">拟扩展</text>
+<text x="1130" y="1638.0" fill="#f6eadf" font-size="13" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">登录与角色权限</text>
+<text x="1130" y="1656.0" fill="#f6eadf" font-size="13" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">操作级权限审计台账</text>
+<rect x="36" y="1700" width="1368" height="72" rx="12" fill="#fffaf4" stroke="#e4d3c2" stroke-width="1.2"/>
+<text x="56" y="1730" fill="#8d6240" font-size="13" font-weight="700" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">当前主路径</text>
+<text x="148" y="1730" fill="#1c2830" font-size="14" font-weight="600" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">合成快照 → 质量与坐标治理 → 规则研判 → 受约束解释 → 方案演练 → 历史复盘</text>
+<text x="56" y="1754" fill="#5d6b72" font-size="13" font-weight="400" text-anchor="start" font-family="Microsoft YaHei, Segoe UI, sans-serif">实时物联、水文水力仿真、淹没图、设备控制和登录权限都在虚线框内，尚未上线。模型不能代替规则，也不能触发审批或派发。</text>
+</svg>

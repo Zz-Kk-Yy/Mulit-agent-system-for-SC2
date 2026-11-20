@@ -1,0 +1,14 @@
+dist/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+*.so
+.env
+.idea/
+*.log
+dashboard_state.json
+*.SC2Replay
+videos/

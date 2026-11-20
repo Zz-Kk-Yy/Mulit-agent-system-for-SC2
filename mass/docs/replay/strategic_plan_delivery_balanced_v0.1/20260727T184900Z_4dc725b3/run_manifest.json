@@ -1,0 +1,119 @@
+{
+  "schema_version": "1.0.0",
+  "run_id": "20260727T184900Z_4dc725b3",
+  "status": "completed",
+  "started_at_utc": "2026-07-27T18:49:00.846Z",
+  "ended_at_utc": "2026-07-27T19:01:00.478Z",
+  "mode": "multi_agent_duel",
+  "map_name": "AutomatonLE",
+  "sc2_version": "5.0.15.96516",
+  "base_build": 96516,
+  "data_version": "B5A551ED8B1A137FFFCC2BA50EC63173",
+  "random_seed": {
+    "value": "06a548114132783a",
+    "unavailable_reason": null,
+    "strategy": "from_env_SWARMBRAIN_RANDOM_SEED"
+  },
+  "code_git_commit": null,
+  "environment": {
+    "sc2_version": {
+      "value": "5.0.15.96516",
+      "unavailable_reason": null
+    },
+    "base_build": {
+      "value": 96516,
+      "unavailable_reason": null
+    },
+    "data_version": {
+      "value": "B5A551ED8B1A137FFFCC2BA50EC63173",
+      "unavailable_reason": null
+    },
+    "random_seed": {
+      "value": "06a548114132783a",
+      "unavailable_reason": null
+    },
+    "code_git_commit": {
+      "value": null,
+      "unavailable_reason": "git_unavailable"
+    }
+  },
+  "model_provider": "openai_compatible",
+  "model_name": "gpt-4o-mini",
+  "agents": [
+    {
+      "agent_id": "red",
+      "agent_side": "red",
+      "display_name": "Red SwarmBrain",
+      "race": "Zerg",
+      "player_id": 1
+    },
+    {
+      "agent_id": "blue",
+      "agent_side": "blue",
+      "display_name": "Blue SwarmBrain",
+      "race": "Zerg",
+      "player_id": 2
+    }
+  ],
+  "replay": {
+    "path": "E:\\star_carft\\SwarmBrain_re\\multi_agent_duel\\videos\\ZvZ_DualAgents_20260727T184900Z_4dc725b3.SC2Replay",
+    "file_name": "ZvZ_DualAgents_20260727T184900Z_4dc725b3.SC2Replay",
+    "size_bytes": 370247,
+    "sha256": "7b58875a94fc7adce857f73109730fbfe8771edc21fc35596fc3b54ce813e4f7",
+    "saved_at_utc": "2026-07-27T19:01:00.273Z",
+    "save_status": "ok",
+    "parse_status": "ok",
+    "parse_error": null
+  },
+  "result": {
+    "player_1": "Result.Defeat",
+    "player_2": "Result.Victory"
+  },
+  "final_game_loop": 11979,
+  "final_game_time_sec": 534.7767857142858,
+  "log_files": {
+    "run": "run_events.jsonl",
+    "llm": "llm_events.jsonl",
+    "command": "command_events.jsonl",
+    "errors": "errors.jsonl"
+  },
+  "config_name": "pilot_dual_llm_v1",
+  "config_version": "1.0.0",
+  "config_sha256": "42573202143c8c593592b3f7b9c8e295b9afb83aab3c96b8e28a09df0ee74b60",
+  "config_path": "E:\\star_carft\\SwarmBrain_re\\multi_agent_duel\\configs\\pilot_dual_llm_v1.yaml",
+  "runtime_config": {
+    "realtime": false,
+    "macro_every": 120,
+    "building_every": 60,
+    "attack_every": 150,
+    "attack_min_army": 16,
+    "max_game_time_sec": 2700,
+    "map_name": "AutomatonLE",
+    "player_1_race": "Zerg",
+    "player_2_race": "Zerg",
+    "fallback_strategy_version": "none_v1",
+    "disable_redis_bridge": true
+  },
+  "prompt_template_version": "swarmbrain_zvz_opening_ingame_v1",
+  "collection_kind": "pilot",
+  "map_name_runtime": "AutomatonLE",
+  "last_observed_game_loop": 11489,
+  "last_observed_game_time_sec": 512.9017857142858,
+  "replay_final_game_loop": 11979,
+  "replay_duration_sec": 534.7767857142858,
+  "map_name_replay": "机械城 - 天梯版",
+  "player_races": [
+    "异虫",
+    "异虫"
+  ],
+  "replay_result": {
+    "player_1": "Loss",
+    "player_2": "Win"
+  },
+  "runtime_result": {
+    "player_1": "Result.Defeat",
+    "player_2": "Result.Victory"
+  },
+  "termination_reason": "natural_end",
+  "result_source": "runtime_and_replay"
+}

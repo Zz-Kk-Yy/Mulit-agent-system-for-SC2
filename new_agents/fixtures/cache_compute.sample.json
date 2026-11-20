@@ -1,0 +1,31 @@
+{
+  "own": {
+    "army_value": 3200,
+    "dps_ground": 180.5,
+    "dps_air": 12.0,
+    "avg_ground_range": 4.2,
+    "air_ratio": 0.05,
+    "supply": 56,
+    "eco_income_est": 980.0
+  },
+  "enemy": {
+    "army_value": 2100,
+    "dps_ground": 95.0,
+    "dps_air": 8.0,
+    "avg_ground_range": 6.5,
+    "air_ratio": 0.0,
+    "visible_supply": 20
+  },
+  "ratios": {
+    "army_value": 1.52,
+    "supply": 2.8,
+    "dps_ground": 1.9,
+    "dps_air": 1.5
+  },
+  "trend_30s": {
+    "own_supply_delta": 8,
+    "enemy_supply_delta": 4,
+    "own_army_value_delta": 400,
+    "enemy_army_value_delta": 200
+  }
+}

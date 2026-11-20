@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "event_type": "llm_call_completed",
+  "event_id": "example-failed-0001",
+  "run_id": "EXAMPLE_RUN",
+  "llm_call_id": "example-llm-call-failed-parse",
+  "channel": "building",
+  "feature_scope": "label_only",
+  "agent_id": "blue",
+  "agent_side": "blue",
+  "player_id": 2,
+  "race": "Zerg",
+  "fallback_used": false,
+  "parse_status": "success_nonempty",
+  "parsed_commands": [
+    "(Drone, B1)->(Build)->(Spawning Pool, B1)"
+  ],
+  "raw_response": "模型只给了命令列表，未输出 strategic_plan JSON 块。",
+  "strategic_plan": {
+    "schema_version": "strategic_plan_v0.1.0",
+    "primary_intent": "unknown",
+    "secondary_intents": [],
+    "intent_confidence": 0.0,
+    "intent_rationale_short": "strategic_plan_block_not_found",
+    "horizon_sec": null,
+    "source": "llm_structured",
+    "parse_status": "failed"
+  }
+}

@@ -1,0 +1,29 @@
+# Plan Probability Contract v0.4.2 independent validation collection.
+# Natural dual-LLM ZvZ short trajectory; paper intent labels are disabled by
+# SWARMBRAIN_ATTACH_STRATEGIC_PLAN_PROMPT=0 in the paper-side launcher.
+config_name: pilot_dual_llm_plan_v042_independent_v01
+config_version: "1.0.0"
+prompt_template_version: swarmbrain_zvz_nolabel_short_v1
+fallback_strategy_version: none_v1
+
+map_name: AutomatonLE
+player_1_race: Zerg
+player_2_race: Zerg
+
+realtime: false
+
+macro_every: 60
+building_every: 60
+attack_every: 90
+attack_min_army: 12
+
+max_game_time_sec: 600
+
+model_provider: openai_compatible
+model_name: null
+temperature: null
+
+random_seed: null
+random_seed_strategy: generate_per_run_if_unset
+
+disable_redis_bridge: true

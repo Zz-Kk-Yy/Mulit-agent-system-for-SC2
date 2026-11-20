@@ -1,0 +1,20 @@
+# SwarmBrain 运行依赖（核心包 + 版本锁定，其余由 pip 自动解析）
+# Python 建议：3.10 / 3.11 / 3.12（64 位）
+#
+#   python -m venv .venv
+#   .\.venv\Scripts\Activate.ps1
+#   python -m pip install -U pip
+#   pip install -r requirements.txt
+#
+# 若安装过慢，可使用国内镜像：pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+burnysc2==7.2.1
+pysc2==4.0.0
+langchain-openai==1.1.15
+numpy==2.2.6
+pygame==2.6.1
+redis>=5.0.0
+fastapi>=0.115.0
+uvicorn>=0.30.0
+python-dotenv>=1.0.0
+mcp>=1.0.0

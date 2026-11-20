@@ -1,0 +1,54 @@
+# 首次环境（仅需一次）
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+cd 项目根目录
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -U pip
+pip install -r requirements.txt
+
+# 方式 A：每次手动设置环境变量（必须）
+.\.venv\Scripts\Activate.ps1
+$env:SC2PATH="D:\StarCraft II"
+$env:SWARMBRAIN_LLM_API_KEY="你的真实Key"
+python swarmbrain_launch.py
+
+# 方式 B：推荐用脚本启动（复制 run_swarmbrain.example.ps1 为 run_swarmbrain.ps1 后改 Key）
+# .\run_swarmbrain.ps1
+
+# —— 问答栈：Docker Redis + Ask API（bridge 已在 swarmbrain_launch 后台线程）——
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+cd 项目根目录
+.\launch_ask_stack.ps1
+# .env 中配置 SWARMBRAIN_LLM_API_KEY；本地已有 Redis：`.\launch_ask_stack.ps1 --skip-docker`
+
+# —— DeerFlow 流水分析（前端联调）——
+# 0) 每个新终端先激活虚拟环境
+.\.venv\Scripts\Activate.ps1
+
+# 1) 启动 Redis + Ask API（新终端 A）
+# 先确保 Docker Desktop 已启动
+.\launch_ask_stack.ps1
+# 若你本机已有 Redis（6379），可改用：
+# .\launch_ask_stack.ps1 --skip-docker
+
+# 2) 启动 SwarmBrain 对局采样（新终端 B，提供 situation:current）
+.\.venv\Scripts\Activate.ps1
+$env:SC2PATH="D:\StarCraft II"
+$env:SWARMBRAIN_LLM_API_KEY="你的真实Key"
+python swarmbrain_launch.py
+
+# 3) 启动 DeerFlow 六阶段流水分析（新终端 C）
+.\.venv\Scripts\Activate.ps1
+python run_sc2_deerflow_pipeline.py
+# 可选：指定线程 ID（便于复查缓存）
+# python run_sc2_deerflow_pipeline.py --thread-id my-run-1
+# 可选：回放分析模式
+# python run_sc2_deerflow_pipeline.py --replay --thread-id replay-1
+
+# （仍可单独跑一次同步，一般不必） python dashboard_to_redis_bridge.py
+
+# （可选仪表盘） python serve_dashboard.py
+
+# 中文提问勿用 Invoke-RestMethod（易乱码），用：
+# .\ask_quick.ps1 -Question "敌方主力在哪？" 
+# 或 .\test_ask_api.ps1 -Question "..."

@@ -1,0 +1,244 @@
+{
+  "qualified": [
+    "20260724T042407Z_623bc227",
+    "20260724T051235Z_5df2f7dc",
+    "20260725T112524Z_60644f11",
+    "20260725T125059Z_e90359f4",
+    "20260726T085811Z_96bbed30",
+    "20260726T091810Z_4e86be4b",
+    "20260726T125512Z_73cd1a56"
+  ],
+  "quarantine": [
+    {
+      "run_id": "20260724T031633Z_63139e59",
+      "exclude_reason": "prompt_format_KeyError_no_ingame_llm"
+    },
+    {
+      "run_id": "20260724T053451Z_248e2b24",
+      "exclude_reason": "crashed_sc2_gone_mid_attack",
+      "status": "crashed"
+    },
+    {
+      "run_id": "20260724T064101Z_effac1f5",
+      "game_exit": 1,
+      "elapsed_sec": 710.0,
+      "seed": "d2a1c5b2ee52e9d8",
+      "exclude_reason": "status=crashed"
+    },
+    {
+      "run_id": "20260724T064101Z_effac1f5",
+      "game_exit": -1,
+      "exclude_reason": "crashed_sc2_killed_mid_game_no_llm_progress",
+      "status": "crashed",
+      "qualified": false
+    },
+    {
+      "run_id": "20260724T045540Z_0e0d77b2",
+      "exclude_reason": "dual_victory_runtime",
+      "replaced": true
+    },
+    {
+      "run_id": "20260724T065446Z_f43d3182",
+      "exclude_reason": "dual_victory_and_replay_lt_480s",
+      "replaced": true
+    },
+    {
+      "run_id": "20260725T110418Z_42749965",
+      "exclude_reason": "dual_victory_runtime",
+      "replaced": true
+    },
+    {
+      "run_id": "20260726T094641Z_b6fa2ba6",
+      "game_exit": 0,
+      "elapsed_sec": 5769.2,
+      "seed": "4285fc884b42d1f2",
+      "replay_duration_sec": 2700.089285714286,
+      "replay_parse_status": "ok",
+      "validation_status": "fail",
+      "failed_rules": [
+        "pilot rejects test_time_limit termination: test_time_limit",
+        "pilot rejects Undecided replay_result",
+        "pilot rejects Tie-only runtime result",
+        "pilot requires Victory/Defeat runtime_result got={'player_1': 'Result.Tie', 'player_2': 'Result.Tie'}"
+      ],
+      "strategic_audit_exit": 0,
+      "exclude_reason": "validator_or_audit_failed"
+    },
+    {
+      "run_id": "20260726T112256Z_8aaa251c",
+      "game_exit": 0,
+      "elapsed_sec": 5535.7,
+      "seed": "d099d55db4252590",
+      "replay_duration_sec": 2700.044642857143,
+      "replay_parse_status": "ok",
+      "validation_status": "fail",
+      "failed_rules": [
+        "pilot rejects test_time_limit termination: test_time_limit",
+        "pilot rejects Undecided replay_result",
+        "pilot rejects Tie-only runtime result",
+        "pilot requires Victory/Defeat runtime_result got={'player_1': 'Result.Tie', 'player_2': 'Result.Tie'}"
+      ],
+      "strategic_audit_exit": 0,
+      "exclude_reason": "validator_or_audit_failed"
+    }
+  ],
+  "attempts": [
+    {
+      "run_id": "20260724T045540Z_0e0d77b2",
+      "game_exit": 0,
+      "elapsed_sec": 1014.2,
+      "seed": "05536f4710aa8f1d",
+      "validation_status": "pass",
+      "failed_rules": [],
+      "strategic_audit_exit": 0,
+      "qualified": true
+    },
+    {
+      "run_id": "20260724T051235Z_5df2f7dc",
+      "game_exit": 0,
+      "elapsed_sec": 1338.3,
+      "seed": "825b8ac6e14e11e9",
+      "validation_status": "pass",
+      "failed_rules": [],
+      "strategic_audit_exit": 0,
+      "qualified": true
+    },
+    {
+      "run_id": "20260724T064101Z_effac1f5",
+      "game_exit": 1,
+      "elapsed_sec": 710.0,
+      "seed": "d2a1c5b2ee52e9d8",
+      "exclude_reason": "status=crashed"
+    },
+    {
+      "run_id": "20260724T064101Z_effac1f5",
+      "game_exit": -1,
+      "exclude_reason": "crashed_sc2_killed_mid_game_no_llm_progress",
+      "status": "crashed",
+      "qualified": false
+    },
+    {
+      "run_id": "20260724T065446Z_f43d3182",
+      "game_exit": 0,
+      "elapsed_sec": 371.7,
+      "seed": "87b8fe00566c9fdb",
+      "validation_status": "pass",
+      "failed_rules": [],
+      "strategic_audit_exit": 0,
+      "qualified": true
+    },
+    {
+      "run_id": "20260725T110418Z_42749965",
+      "game_exit": 0,
+      "elapsed_sec": 1265.8,
+      "seed": "a5966469c68d65ca",
+      "validation_status": "pass",
+      "failed_rules": [],
+      "strategic_audit_exit": 0,
+      "qualified": true
+    },
+    {
+      "run_id": "20260725T112524Z_60644f11",
+      "game_exit": 0,
+      "elapsed_sec": 2940.8,
+      "seed": "c224f9a4e4861cf0",
+      "validation_status": "pass",
+      "failed_rules": [],
+      "strategic_audit_exit": 0,
+      "qualified": true
+    },
+    {
+      "run_id": "20260725T125059Z_e90359f4",
+      "game_exit": 0,
+      "elapsed_sec": 1706.8,
+      "seed": "400bb1827176f77b",
+      "validation_status": "pass",
+      "failed_rules": [],
+      "strategic_audit_exit": 0,
+      "qualified": true
+    },
+    {
+      "run_id": "20260726T085811Z_96bbed30",
+      "game_exit": 0,
+      "elapsed_sec": 1207.2,
+      "seed": "80f8f54b2464e92e",
+      "replay_duration_sec": 718.3035714285714,
+      "replay_parse_status": "ok",
+      "validation_status": "pass",
+      "failed_rules": [],
+      "strategic_audit_exit": 0,
+      "qualified": true
+    },
+    {
+      "run_id": "20260726T091810Z_4e86be4b",
+      "game_exit": 0,
+      "elapsed_sec": 1710.8,
+      "seed": "e8758ebee5f15908",
+      "replay_duration_sec": 1385.4017857142858,
+      "replay_parse_status": "ok",
+      "validation_status": "pass",
+      "failed_rules": [],
+      "strategic_audit_exit": 0,
+      "qualified": true
+    },
+    {
+      "run_id": "20260726T094641Z_b6fa2ba6",
+      "game_exit": 0,
+      "elapsed_sec": 5769.2,
+      "seed": "4285fc884b42d1f2",
+      "replay_duration_sec": 2700.089285714286,
+      "replay_parse_status": "ok",
+      "validation_status": "fail",
+      "failed_rules": [
+        "pilot rejects test_time_limit termination: test_time_limit",
+        "pilot rejects Undecided replay_result",
+        "pilot rejects Tie-only runtime result",
+        "pilot requires Victory/Defeat runtime_result got={'player_1': 'Result.Tie', 'player_2': 'Result.Tie'}"
+      ],
+      "strategic_audit_exit": 0,
+      "exclude_reason": "validator_or_audit_failed"
+    },
+    {
+      "run_id": "20260726T112256Z_8aaa251c",
+      "game_exit": 0,
+      "elapsed_sec": 5535.7,
+      "seed": "d099d55db4252590",
+      "replay_duration_sec": 2700.044642857143,
+      "replay_parse_status": "ok",
+      "validation_status": "fail",
+      "failed_rules": [
+        "pilot rejects test_time_limit termination: test_time_limit",
+        "pilot rejects Undecided replay_result",
+        "pilot rejects Tie-only runtime result",
+        "pilot requires Victory/Defeat runtime_result got={'player_1': 'Result.Tie', 'player_2': 'Result.Tie'}"
+      ],
+      "strategic_audit_exit": 0,
+      "exclude_reason": "validator_or_audit_failed"
+    },
+    {
+      "run_id": "20260726T125512Z_73cd1a56",
+      "game_exit": 0,
+      "elapsed_sec": 2419.7,
+      "seed": "4a9c0587a2cbc60b",
+      "replay_duration_sec": 1312.857142857143,
+      "replay_parse_status": "ok",
+      "validation_status": "pass",
+      "failed_rules": [],
+      "strategic_audit_exit": 0,
+      "qualified": true
+    }
+  ],
+  "target": 7,
+  "notes": "replaced 3 dual-Victory/<480s failures with 96bbed30,4e86be4b,73cd1a56; gates enforced; scarce: mid_timing_attack present, others left ambiguous (no fabricate)",
+  "replacement_mode": false,
+  "replacements": [
+    "20260726T085811Z_96bbed30",
+    "20260726T091810Z_4e86be4b",
+    "20260726T125512Z_73cd1a56"
+  ],
+  "failed_to_replace": [
+    "20260724T045540Z_0e0d77b2",
+    "20260724T065446Z_f43d3182",
+    "20260725T110418Z_42749965"
+  ]
+}

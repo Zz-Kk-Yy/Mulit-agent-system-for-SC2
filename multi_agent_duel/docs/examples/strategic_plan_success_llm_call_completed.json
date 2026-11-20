@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "event_type": "llm_call_completed",
+  "event_id": "example-success-0001",
+  "run_id": "EXAMPLE_RUN",
+  "llm_call_id": "example-llm-call-success",
+  "channel": "building",
+  "feature_scope": "label_only",
+  "agent_id": "red",
+  "agent_side": "red",
+  "player_id": 1,
+  "race": "Zerg",
+  "fallback_used": false,
+  "parse_status": "success_nonempty",
+  "parsed_commands": [
+    "(Drone, A1)->(Build)->(Hydralisk Den, A1)",
+    "(Drone, A1)->(Build)->(Hatchery, A2)"
+  ],
+  "strategic_plan": {
+    "schema_version": "strategic_plan_v0.1.0",
+    "primary_intent": "tech_climb",
+    "secondary_intents": ["fast_expand"],
+    "intent_confidence": 0.62,
+    "intent_rationale_short": "优先解锁 Hydralisk Den，同时补二矿",
+    "horizon_sec": 90,
+    "source": "llm_structured",
+    "parse_status": "success"
+  }
+}

@@ -1,0 +1,30 @@
+# Historical freeze: second v0.3 cover games (max_game_time_sec=1200).
+# Used by run_ids: 20260728T151048Z_f5252b4c, 20260728T162956Z_37e8faf3
+# config_sha256 (as recorded at runtime):
+#   3a25eac9f410a8fb6dcf5789e9d400617ce5226348288d07df5f30ea2859e2ea
+config_name: pilot_dual_llm_v03_cover_v1
+config_version: "1.1.0"
+prompt_template_version: swarmbrain_zvz_opening_ingame_v1
+fallback_strategy_version: none_v1
+
+map_name: AutomatonLE
+player_1_race: Zerg
+player_2_race: Zerg
+
+realtime: false
+
+macro_every: 90
+building_every: 45
+attack_every: 120
+attack_min_army: 10
+
+max_game_time_sec: 1200
+
+model_provider: openai_compatible
+model_name: null
+temperature: null
+
+random_seed: null
+random_seed_strategy: generate_per_run_if_unset
+
+disable_redis_bridge: true

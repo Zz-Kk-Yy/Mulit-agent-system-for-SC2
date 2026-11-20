@@ -1,0 +1,102 @@
+{
+  "qualified": [
+    "20260721T095812Z_fe2fb72f",
+    "20260721T101817Z_23267397",
+    "20260721T104512Z_41b4c057",
+    "20260721T114726Z_8200d689",
+    "20260721T120458Z_0eb1c3f8"
+  ],
+  "quarantine": [
+    {
+      "run_id": "20260721T110705Z_25600179",
+      "game_exit": 0,
+      "elapsed_sec": 1253.0,
+      "seed": "8a259b312a1377d3",
+      "validation_status": "fail",
+      "failed_rules": [
+        "pilot missing red/macro completed calls",
+        "pilot missing blue/macro completed calls"
+      ],
+      "exclude_reason": "validator_failed"
+    },
+    {
+      "run_id": "20260721T112757Z_e454359d",
+      "game_exit": 0,
+      "elapsed_sec": 1166.8,
+      "seed": "d71eef0bc63df421",
+      "validation_status": "fail",
+      "failed_rules": [
+        "pilot missing red/macro completed calls",
+        "pilot missing blue/macro completed calls"
+      ],
+      "exclude_reason": "validator_failed"
+    }
+  ],
+  "attempts": [
+    {
+      "run_id": "20260721T095812Z_fe2fb72f",
+      "qualified": true,
+      "note": "S2"
+    },
+    {
+      "run_id": "20260721T101817Z_23267397",
+      "game_exit": 0,
+      "elapsed_sec": 1614.6,
+      "seed": "fd2660d5ecd927c9",
+      "validation_status": "pass",
+      "failed_rules": [],
+      "qualified": true
+    },
+    {
+      "run_id": "20260721T104512Z_41b4c057",
+      "game_exit": 0,
+      "elapsed_sec": 1313.2,
+      "seed": "7c16a9fe249ca7db",
+      "validation_status": "pass",
+      "failed_rules": [],
+      "qualified": true
+    },
+    {
+      "run_id": "20260721T110705Z_25600179",
+      "game_exit": 0,
+      "elapsed_sec": 1253.0,
+      "seed": "8a259b312a1377d3",
+      "validation_status": "fail",
+      "failed_rules": [
+        "pilot missing red/macro completed calls",
+        "pilot missing blue/macro completed calls"
+      ],
+      "exclude_reason": "validator_failed"
+    },
+    {
+      "run_id": "20260721T112757Z_e454359d",
+      "game_exit": 0,
+      "elapsed_sec": 1166.8,
+      "seed": "d71eef0bc63df421",
+      "validation_status": "fail",
+      "failed_rules": [
+        "pilot missing red/macro completed calls",
+        "pilot missing blue/macro completed calls"
+      ],
+      "exclude_reason": "validator_failed"
+    },
+    {
+      "run_id": "20260721T114726Z_8200d689",
+      "game_exit": 0,
+      "elapsed_sec": 1054.7,
+      "seed": "0fcf804c23b4146e",
+      "validation_status": "pass",
+      "failed_rules": [],
+      "qualified": true
+    },
+    {
+      "run_id": "20260721T120458Z_0eb1c3f8",
+      "game_exit": 0,
+      "elapsed_sec": 1105.0,
+      "seed": "fdd4b97d33fef1fb",
+      "validation_status": "pass",
+      "failed_rules": [],
+      "qualified": true
+    }
+  ]
+}

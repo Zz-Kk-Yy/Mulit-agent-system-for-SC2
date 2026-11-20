@@ -1,0 +1,26 @@
+{
+  "primary_strategy": "timing_attack",
+  "confidence": 0.78,
+  "evidence": ["敌方 SiegeTank 数量上升", "补给增量集中在陆军", "前线距离缩短"],
+  "intent_dimensions": {
+    "attack": {"description_cn": "疑似准备一波陆军推进", "level": "high"},
+    "defense": {"description_cn": "防守压力一般", "level": "low"},
+    "detect": {"description_cn": "视野覆盖不足，需防绕路", "level": "medium"},
+    "support": {"description_cn": "敌方经济仍健康，可能持续产兵", "level": "medium"}
+  },
+  "evidence_by_dimension": {
+    "attack": ["SiegeTank 集结", "Marine 数量增加"],
+    "defense": [],
+    "detect": ["迷雾占比 58%"],
+    "support": ["可见 Barracks"]
+  },
+  "expected_attack_routes": [
+    {"direction": "东北方向", "probability": 0.65, "eta_seconds": 45, "involved_units": ["Marine", "SiegeTank"]}
+  ],
+  "tech_switch_risk": {"switching_to": null, "probability": 0.15},
+  "timing_window": {
+    "critical_window_start_sec": 300,
+    "critical_window_end_sec": 420,
+    "reason": "敌方坦克成型前后窗口"
+  }
+}

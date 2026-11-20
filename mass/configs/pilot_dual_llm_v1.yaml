@@ -1,0 +1,36 @@
+# SwarmBrain dual-LLM pilot collection config (frozen).
+# Smoke overrides (ATTACK_EVERY=40 / ATTACK_MIN_ARMY=0 / MAX=420) are forbidden.
+config_name: pilot_dual_llm_v1
+config_version: "1.0.0"
+prompt_template_version: swarmbrain_zvz_opening_ingame_v1
+fallback_strategy_version: none_v1
+
+map_name: AutomatonLE
+player_1_race: Zerg
+player_2_race: Zerg
+
+# Collection clock: non-realtime for practical offline pilot runs.
+# Strategy intervals below match SwarmBrain production defaults (not smoke).
+realtime: false
+
+# Planner intervals (game iterations / frames as used by swarmbrain_launch)
+macro_every: 120
+building_every: 60
+attack_every: 150
+attack_min_army: 16
+
+# Safety ceiling only. Hits are quarantine (not counted as qualified pilot).
+# Leave unset / null for pure natural end; 2700s ≈ 45 min game-time.
+max_game_time_sec: 2700
+
+# Model (non-secret). API key must come from env / .env only.
+model_provider: openai_compatible
+# model_name / temperature resolved from SWARMBRAIN_LLM_* when null
+model_name: null
+temperature: null
+
+# Seed: if null at launch, a per-run seed is generated and recorded.
+random_seed: null
+random_seed_strategy: generate_per_run_if_unset
+
+disable_redis_bridge: true

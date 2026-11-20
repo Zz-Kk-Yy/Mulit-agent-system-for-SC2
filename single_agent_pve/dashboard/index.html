@@ -1,0 +1,1964 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>星际争霸游戏辅助决策系统</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script defer src="./app.js"></script>
+  </head>
+  <body>
+    <div id="app" v-cloak>
+      <div class="page-shell">
+        <header class="page-header">
+          <div class="brand-block">
+            <h1>星际争霸游戏辅助决策系统</h1>
+          </div>
+
+          <div class="header-badges">
+            <span class="badge" :class="statusClass">{{ statusLabel }}</span>
+            <span class="badge ghost">{{ stageLabel }}</span>
+          </div>
+        </header>
+
+        <main class="main-workspace">
+          <section
+            v-show="situationModuleOverlayActive"
+            class="situation-module-overlay"
+            :aria-label="situationModuleOverlayTitle + '模块页'"
+          >
+            <header class="situation-module-overlay-top">
+              <div class="situation-module-overlay-brand">
+                <h2 class="situation-module-overlay-title">{{ situationModuleOverlayTitle }}</h2>
+                <span class="panel-meta situation-module-overlay-meta">{{ rightLayerMeta }}</span>
+              </div>
+              <div class="situation-module-overlay-actions planner-task-toolbar">
+                <button
+                  type="button"
+                  class="layer-switch-overview-btn"
+                  @click="activeRightLayer = 'overview'"
+                >
+                  返回系统总览
+                </button>
+                <button
+                  type="button"
+                  class="planner-task-history-toggle situation-analysis-refresh-btn"
+                  :disabled="deerflowRiskLoading"
+                  @click="refreshDeerflowRisk()"
+                >
+                  {{ deerflowRiskLoading ? "智能体分析中..." : "刷新分析" }}
+                </button>
+              </div>
+            </header>
+            <div class="situation-module-overlay-tabs layer-switch-bar" role="tablist" aria-label="态势分析模块切换（全页）">
+              <button
+                v-for="opt in rightLayerTabOptions"
+                :key="`layer-full-${opt.key}`"
+                type="button"
+                role="tab"
+                :aria-selected="activeRightLayer === opt.key"
+                :class="{ active: activeRightLayer === opt.key }"
+                @click="activeRightLayer = opt.key"
+              >
+                {{ opt.label }}
+              </button>
+            </div>
+
+            <div class="situation-module-overlay-body">
+              <div class="situation-module-map-col panel panel-left situation-module-map-panel">
+                <div class="panel-head situation-module-map-head">
+                  <div>
+                    <h3>战场态势沙盘</h3>
+                  </div>
+                  <span class="panel-meta">{{ minimapMetaLine }}</span>
+                </div>
+
+                <div v-if="minimapFrame" class="minimap-layout minimap-layout--module-page">
+                  <div class="minimap-stage minimap-stage--large">
+                    <div class="minimap-frame minimap-frame--large" :class="{ 'minimap-frame--base-only': !liveUiArmed }">
+                      <div class="minimap-layer minimap-layer--base">
+                        <img
+                          src="./R.jpg"
+                          alt="小地图底图"
+                          class="minimap-base-image"
+                          :style="minimapBaseImageStyle"
+                          @load="onMinimapBaseImageLoad"
+                        />
+                      </div>
+                      <!-- 迷雾层：由当前模块独立配置控制 -->
+                      <div v-if="activeModuleConfig.showFog" class="minimap-layer minimap-layer--fog" aria-hidden="true">
+                        <img
+                          v-if="fogCanvasDataUrl"
+                          :src="fogCanvasDataUrl"
+                          class="minimap-fog-image"
+                          alt=""
+                          draggable="false"
+                        />
+                      </div>
+                      <div class="minimap-layer minimap-layer--threat-heat" aria-hidden="true"></div>
+                      <!-- 资源层：由当前模块独立配置控制 -->
+                      <div v-if="activeModuleConfig.showResources" class="minimap-layer minimap-layer--resources" aria-label="矿区资源标记">
+                        <div
+                          v-for="resource in minimapResourceMarkers"
+                          :key="'mod-resource-' + (resource.key || resource.label)"
+                          class="minimap-resource-marker"
+                          :style="resourceMarkerStyle(resource)"
+                          :title="`矿区资源 ${resource.label}`"
+                        >
+                          <span></span>
+                        </div>
+                      </div>
+                      <!-- 范围圈层：由当前模块独立配置控制 -->
+                      <div v-if="activeModuleConfig.showRangeCircles" class="minimap-layer minimap-layer--range-circles" aria-hidden="true">
+                        <div
+                          v-for="circle in minimapRangeCircles"
+                          :key="'mod-range-' + circle.key"
+                          class="minimap-range-circle"
+                          :class="['side-' + circle.side, 'role-' + circle.role]"
+                          :style="rangeCircleStyle(circle)"
+                          :title="`${circle.name} ${circle.role === 'scout' ? '侦察' : circle.role === 'strike' ? '打击' : '防御'}范围`"
+                        ></div>
+                      </div>
+                      <!-- 单元标记层：由当前模块独立配置控制；能力高亮时只显示对应角色 -->
+                      <div v-if="activeModuleConfig.showUnits" class="minimap-layer minimap-layer--unit-markers" aria-label="后台单元标记">
+                        <div
+                          v-for="marker in minimapUnitMarkersFiltered"
+                          :key="'mod-f-' + marker.key"
+                          class="minimap-unit-marker"
+                          :class="[
+                            marker.side, marker.role,
+                            { 'highlighted': !!minimapHighlightRole },
+                            { 'intent-high': activeRightLayer === 'intent' && marker.side === 'enemy' && intentHighlightRoles.has(marker.role) },
+                            { 'intent-dim':  activeRightLayer === 'intent' && !intentHighlightRoles.has(marker.role) && intentHighlightRoles.size > 0 },
+                            { 'risk-dim':    activeRightLayer === 'risk' && riskHighlightGroupKey && !riskHighlightMarkers.some(r => r.key === marker.key) },
+                            { 'critical-aim': activeRightLayer === 'critical' && isCriticalAimMarker(marker) }
+                          ]"
+                          :style="unitMarkerStyle(marker)"
+                          :title="unitMarkerTitle(marker)"
+                        >
+                          <span class="unit-marker-halo"></span>
+                          <span class="unit-marker-core"></span>
+                          <span class="unit-marker-label">{{ marker.locationLabel }}</span>
+                        </div>
+                      </div>
+                      <!-- 杀伤链模块：将当前作战模式的敌链破坏步骤流映射到沙盘 -->
+                      <div
+                        v-if="activeRightLayer === 'killchain' && killChainStrikeFlowMapNodes.length"
+                        class="minimap-layer minimap-layer--killchain-strikeflow"
+                        aria-label="敌链破坏步骤流沙盘联动"
+                      >
+                        <svg class="killchain-strikeflow-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                          <defs>
+                            <marker id="killchain-strikeflow-arrow" markerWidth="4" markerHeight="4" refX="3.4" refY="2" orient="auto" markerUnits="strokeWidth">
+                              <path d="M0,0 L4,2 L0,4 Z"></path>
+                            </marker>
+                          </defs>
+                          <path
+                            v-for="segment in killChainStrikeFlowMapSegments"
+                            :key="segment.key"
+                            class="killchain-strikeflow-arrow"
+                            :d="segment.path"
+                            :style="{ '--flow-color': segment.color }"
+                            marker-end="url(#killchain-strikeflow-arrow)"
+                          ></path>
+                        </svg>
+                        <div
+                          v-for="node in killChainStrikeFlowMapNodes"
+                          :key="'killflow-node-' + node.key"
+                          class="killchain-strikeflow-node"
+                          :class="'dim-' + node.dim"
+                          :style="killChainStrikeFlowNodeStyle(node)"
+                          :title="node.title + ' · ' + node.location"
+                        >
+                          <span class="killchain-strikeflow-shape"></span>
+                          <b>{{ node.order }}</b>
+                          <em>{{ node.location }}</em>
+                        </div>
+                      </div>
+                      <!-- 关键打击节点模块：瞄准形状直接附着在被选中的敌方单位 marker 上（见 .minimap-unit-marker.critical-aim） -->
+                      <!-- 风险标记层：风险模块选中维度时，在命中单元上叠加感叹号警告标识 -->
+                      <div
+                        v-if="activeRightLayer === 'risk' && riskHighlightGroupKey && riskHighlightMarkers.length"
+                        class="minimap-layer minimap-layer--risk-markers"
+                        aria-label="风险目标标记"
+                      >
+                        <div
+                          v-for="(marker, mi) in riskHighlightMarkers"
+                          :key="'risk-mk-' + marker.key + mi"
+                          class="minimap-risk-marker"
+                          :class="'risk-mk--' + marker.riskGroupKey"
+                          :style="unitMarkerStyle(marker)"
+                          :title="marker.name + ' · ' + (marker.riskGroupKey === 'attack' ? '进攻' : marker.riskGroupKey === 'defense' ? '防御' : marker.riskGroupKey === 'detect' ? '探测' : '保障') + '风险目标'"
+                        >
+                          <span class="risk-mk-ring risk-mk-ring--outer"></span>
+                          <span class="risk-mk-ring risk-mk-ring--inner"></span>
+                          <span class="risk-mk-bang">!</span>
+                          <span class="risk-mk-label">{{ marker.name }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <aside class="minimap-info-block minimap-info-block--module-page">
+                    <article class="legend-card">
+                      <div class="legend-list">
+                        <div
+                          v-for="item in minimapLegend"
+                          :key="`mod-leg-${item.label}`"
+                          class="legend-row"
+                          :title="item.note"
+                          :aria-label="`${item.label}：${item.note}`"
+                        >
+                          <span class="legend-swatch" :class="item.className"></span>
+                          <div class="legend-copy">
+                            <strong>{{ item.label }}</strong>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="minimap-mapping-panel">
+                        <button
+                          type="button"
+                          class="minimap-mapping-toggle"
+                          :class="{ open: minimapMappingOpen }"
+                          @click="minimapMappingOpen = !minimapMappingOpen"
+                          aria-label="映射调整"
+                        >
+                          <span>映射调整</span>
+                          <span class="minimap-mapping-toggle-arrow">▾</span>
+                        </button>
+                        <div v-show="minimapMappingOpen" class="minimap-mapping-controls">
+                          <div class="minimap-mapping-row">
+                            <span class="minimap-mapping-label">X 偏移</span>
+                            <button type="button" class="minimap-mapping-btn" @click="adjustMinimapMapping('x', -0.5)">−</button>
+                            <span class="minimap-mapping-val">{{ minimapStatus.offsetX }}</span>
+                            <button type="button" class="minimap-mapping-btn" @click="adjustMinimapMapping('x', 0.5)">+</button>
+                          </div>
+                          <div class="minimap-mapping-row">
+                            <span class="minimap-mapping-label">Y 偏移</span>
+                            <button type="button" class="minimap-mapping-btn" @click="adjustMinimapMapping('y', -0.5)">−</button>
+                            <span class="minimap-mapping-val">{{ minimapStatus.offsetY }}</span>
+                            <button type="button" class="minimap-mapping-btn" @click="adjustMinimapMapping('y', 0.5)">+</button>
+                          </div>
+                          <div class="minimap-mapping-row">
+                            <span class="minimap-mapping-label">缩放</span>
+                            <button type="button" class="minimap-mapping-btn" @click="adjustMinimapMapping('scale', -0.01)">−</button>
+                            <span class="minimap-mapping-val">{{ minimapStatus.scale }}</span>
+                            <button type="button" class="minimap-mapping-btn" @click="adjustMinimapMapping('scale', 0.01)">+</button>
+                          </div>
+                          <div class="minimap-mapping-row">
+                            <span class="minimap-mapping-label">底图 X</span>
+                            <button type="button" class="minimap-mapping-btn" @click="adjustMinimapBaseScale('x', -0.01)">−</button>
+                            <span class="minimap-mapping-val">{{ minimapStatus.baseScaleX }}</span>
+                            <button type="button" class="minimap-mapping-btn" @click="adjustMinimapBaseScale('x', 0.01)">+</button>
+                          </div>
+                          <div class="minimap-mapping-row">
+                            <span class="minimap-mapping-label">底图 Y</span>
+                            <button type="button" class="minimap-mapping-btn" @click="adjustMinimapBaseScale('y', -0.01)">−</button>
+                            <span class="minimap-mapping-val">{{ minimapStatus.baseScaleY }}</span>
+                            <button type="button" class="minimap-mapping-btn" @click="adjustMinimapBaseScale('y', 0.01)">+</button>
+                          </div>
+                          <button type="button" class="minimap-mapping-reset" @click="resetMinimapMapping()">重置默认</button>
+                        </div>
+                      </div>
+
+                      <div class="minimap-status-panel" aria-label="沙盘状态">
+                        <div class="minimap-status-title">沙盘状态：</div>
+                        <div class="minimap-status-row"><b>帧</b><span>{{ minimapStatus.frame }}</span></div>
+                        <div class="minimap-status-row"><b>回合</b><span>{{ minimapStatus.loop }}</span></div>
+                        <div class="minimap-status-row"><b>标记</b><span>{{ minimapStatus.markers }}</span></div>
+                        <div class="minimap-status-vision">
+                          <div class="minimap-status-section-title">视野</div>
+                          <div
+                            v-for="(line, idx) in minimapVisionLines"
+                            :key="'module-map-vision-' + idx"
+                            class="minimap-status-row minimap-status-vision-line"
+                            :class="line.className"
+                          >
+                            <b>{{ line.label }}</b><span>{{ line.value }}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  </aside>
+                </div>
+
+                <div v-else class="empty-state situation-module-map-empty">
+                  <h3>等待小地图帧</h3>
+                  <p>对局开始导出特征层后，此处会显示与主界面同步的放大态势沙盘。</p>
+                </div>
+              </div>
+
+              <div class="situation-module-text-col panel panel-situation situation-module-text-panel">
+                <div v-show="activeRightLayer === 'awareness'" class="situation-module-text-fill situation-module-text-fill--awareness">
+                <div class="situation-grid force-situation-grid deerflow-module-grid deerflow-awareness-grid">
+                  <article class="situation-card situation-card-span2 deerflow-awareness-note deerflow-sensing-card">
+                    <div class="situation-card-head deerflow-sensing-head">
+                      <div class="deerflow-sensing-head-left">
+                        <span>S1 态势感知（sc2-sensing）</span>
+                        <small class="deerflow-sensing-head-sub">事实快照 · Redis 缓存</small>
+                      </div>
+                      <div class="deerflow-sensing-head-right">
+                        <span v-if="deerflowAwarenessSensingHasPayload" class="deerflow-sensing-pill ok">已挂载</span>
+                        <span v-else class="deerflow-sensing-pill">未挂载</span>
+                      </div>
+                    </div>
+
+                    <div v-if="deerflowAwarenessSensingHasPayload" class="sit-composition-scroll deerflow-sensing-scroll deerflow-sensing-grid">
+                      <section
+                        v-for="(blk, bi) in deerflowAwarenessSensingBlocks"
+                        :key="'sensing-full-' + bi"
+                        class="deerflow-sensing-panel"
+                      >
+                        <header class="deerflow-sensing-panel-head">
+                          <strong>{{ blk.title }}</strong>
+                        </header>
+                        <div class="deerflow-sensing-panel-body">
+                          <p
+                            v-for="(ln, li) in blk.lines"
+                            :key="'s1-full-ln-' + bi + '-' + li"
+                            class="deerflow-sensing-line"
+                            :class="typeof ln === 'object' ? ln.className : ''"
+                          >
+                            <span
+                              v-if="typeof ln === 'object' && ln.dot"
+                              class="deerflow-sensing-dot"
+                              :class="'deerflow-sensing-dot--' + ln.dot"
+                            ></span>
+                            <span>{{ typeof ln === 'object' ? ln.text : ln }}</span>
+                          </p>
+                        </div>
+                      </section>
+                    </div>
+
+                    <div v-else class="deerflow-sensing-empty deerflow-sensing-empty--v2">
+                      <div class="deerflow-sensing-empty-hero">
+                        <strong>等待 sensing 快照</strong>
+                        <span>点击「刷新分析」后，会写入 Redis 并在此处渲染。</span>
+                      </div>
+                      <p class="situation-insight force-insight-full"></p>
+                      <p class="situation-meta-muted">
+                        实时对局快照仍可在「兵力布势」总览查看；本卡片仅展示流水线写入 Redis 的 S1 阶段结果。
+                      </p>
+                    </div>
+                  </article>
+
+                  <article class="situation-card situation-card-span2 force-card-tall deerflow-main-card deerflow-main-card--awareness deerflow-compute-card">
+                    <div class="situation-card-head deerflow-compute-head">
+                      <div>
+                        <span>S2 态势计算（sc2-compute）</span>
+                        <small>实时量化矩阵 · Force / Economy / Trend</small>
+                      </div>
+                      <strong>对比推演</strong>
+                    </div>
+                    <div class="sit-composition-scroll deerflow-compute-kpi-wrap">
+                      <div class="deerflow-compute-row-list" role="region" aria-label="S2 量化指标">
+                        <div
+                          v-for="row in deerflowAwarenessComputeRows"
+                          :key="`compute-full-${row.key}`"
+                          class="deerflow-compute-row"
+                          :class="`accent-${row.accent}`"
+                          :style="{ '--own-pct': row.ownPct + '%', '--enemy-pct': row.enemyPct + '%' }"
+                        >
+                          <div class="deerflow-compute-row-orb" aria-hidden="true">
+                            <span>{{ row.icon }}</span>
+                          </div>
+
+                          <div class="deerflow-compute-row-main">
+                            <div class="deerflow-compute-row-name">
+                              <strong>{{ row.label }}</strong>
+                              <small>{{ row.hint }}</small>
+                            </div>
+
+                            <div class="deerflow-compute-row-compare">
+                              <div class="deerflow-compute-row-values">
+                                <span class="own"><b>我方</b>{{ row.own }}</span>
+                                <span class="enemy"><b>敌方</b>{{ row.enemy }}</span>
+                              </div>
+                              <div class="deerflow-compute-row-bar" aria-hidden="true">
+                                <span class="own"></span>
+                                <span class="enemy"></span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="deerflow-compute-row-ratio">
+                            <span v-if="row.ratioNum !== null" class="ratio">比值 {{ row.ratioText }}</span>
+                            <span v-else class="ratio ratio--na">比值 —</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                </div>
+                </div>
+
+                <div v-show="activeRightLayer === 'force'" class="situation-module-text-fill panel-force-deployment panel-force-v2 situation-scroll-scope">
+                  <div ref="forceLayoutV2" class="force-layout-v2 situation-grid force-situation-grid">
+                    <div class="force-layout-v2-top">
+                      <article ref="forceCapBlock" class="force-cell force-cell--cap situation-card force-cell-top">
+                      <div class="force-cell-glow force-cell-glow--violet"></div>
+
+                      <!-- 标题：双方能力结构 -->
+                      <div class="situation-card-head force-cap-head">
+                        <div class="force-cap-head-title">
+                          <span class="force-cap-head-icon">⚖</span>
+                          <span>双方能力结构</span>
+                        </div>
+                        <div class="force-cap-head-meta">
+                          <span class="force-cap-head-badge force-cap-head-badge--own">我方 {{ forceSideSummary.ownTotal }}</span>
+                          <span class="force-cap-head-vs">vs</span>
+                          <span class="force-cap-head-badge force-cap-head-badge--enemy">敌方 {{ forceSideSummary.enemyTotal }}</span>
+                        </div>
+                      </div>
+
+                      <!-- 蝶形可视化对比图 -->
+                      <div class="force-cap-vis">
+                        <div class="force-cap-vis-header">
+                          <span class="force-cap-vis-side-label force-cap-vis-side-label--own">我方</span>
+                          <span class="force-cap-vis-mid-label">能力域</span>
+                          <span class="force-cap-vis-side-label force-cap-vis-side-label--enemy">敌方</span>
+                        </div>
+                        <div
+                          v-for="row in forceCapabilityRows"
+                          :key="`cap-vis-${row.key}`"
+                          class="force-cap-vis-row"
+                          :class="[
+                            `force-cap-vis-row--${row.key}`,
+                            { 'own-ahead': row.diff > 0, 'enemy-ahead': row.diff < 0 },
+                            { 'cap-highlighted': minimapHighlightRole === capabilityToRole(row.key) },
+                            { 'cap-dimmed': minimapHighlightRole && minimapHighlightRole !== capabilityToRole(row.key) }
+                          ]"
+                        >
+                          <!-- 我方：数量在外侧，进度条从外向内延伸至中轴 -->
+                          <div class="force-cap-vis-side force-cap-vis-side--own">
+                            <span class="force-cap-vis-count force-cap-vis-count--own">{{ row.own }}</span>
+                            <div class="force-cap-vis-track force-cap-vis-track--own">
+                              <div class="force-cap-vis-bar force-cap-vis-bar--own" :style="{ width: row.ownBarPct + '%' }"></div>
+                            </div>
+                          </div>
+                          <!-- 中轴：图标+标签做成按键，按住时高亮该类型单元 -->
+                          <div class="force-cap-vis-center">
+                            <button
+                              type="button"
+                              class="force-cap-filter-btn"
+                              :class="{ 'active': minimapHighlightRole === capabilityToRole(row.key) }"
+                              :title="`按住高亮小地图上的${row.label}单元`"
+                              @mousedown.prevent="setMinimapHighlight(row.key)"
+                              @mouseup="clearMinimapHighlight()"
+                              @mouseleave="clearMinimapHighlight()"
+                              @touchstart.prevent="setMinimapHighlight(row.key)"
+                              @touchend="clearMinimapHighlight()"
+                              @touchcancel="clearMinimapHighlight()"
+                            >
+                              <span class="force-cap-vis-icon">{{ row.icon }}</span>
+                              <span class="force-cap-vis-label">{{ row.label }}</span>
+                            </button>
+                            <span
+                              class="force-cap-vis-diff"
+                              :class="{ 'own': row.diff > 0, 'enemy': row.diff < 0, 'even': row.diff === 0 }"
+                            >{{ row.diffLabel }}</span>
+                          </div>
+                          <!-- 敌方：进度条从中轴向外延伸，数量在外侧 -->
+                          <div class="force-cap-vis-side force-cap-vis-side--enemy">
+                            <div class="force-cap-vis-track force-cap-vis-track--enemy">
+                              <div class="force-cap-vis-bar force-cap-vis-bar--enemy" :style="{ width: row.enemyBarPct + '%' }"></div>
+                            </div>
+                            <span class="force-cap-vis-count force-cap-vis-count--enemy">{{ row.enemy }}</span>
+                          </div>
+                        </div>
+
+                      </div>
+
+                      </article>
+
+                      <article class="force-cell force-cell--loc situation-card force-cell-top">
+                      <div class="force-cell-glow force-cell-glow--amber"></div>
+
+                      <!-- 标题：部署位置明细 -->
+                      <div class="situation-card-head force-loc-head">
+                        <div class="force-loc-head-title">
+                          <span class="force-loc-head-icon">📍</span>
+                          <span>部署位置明细</span>
+                        </div>
+                        <span class="force-loc-count-badge">{{ forceDeploymentLocationRows.length }} 区域</span>
+                      </div>
+
+                      <!-- 位置卡片网格 -->
+                      <div class="sit-composition-scroll force-loc-cards">
+                        <div
+                          v-for="row in forceDeploymentLocationRows"
+                          :key="`loc-card-${row.location}`"
+                          class="force-loc-card"
+                          :class="{
+                            'has-own': row.ownTotal > 0,
+                            'has-enemy': row.enemyTotal > 0,
+                            'contested': row.ownTotal > 0 && row.enemyTotal > 0
+                          }"
+                        >
+                          <!-- 卡片顶栏：区域标签 + 双方比例条 -->
+                          <div class="force-loc-card-head">
+                            <strong class="force-loc-card-label">{{ row.location }}</strong>
+                            <div class="force-loc-ratio-bar" :title="`我方 ${row.ownTotal}  敌方 ${row.enemyTotal}`">
+                              <div
+                                class="force-loc-ratio-own"
+                                :style="{ flex: row.ownTotal || 0.05 }"
+                              ></div>
+                              <div
+                                class="force-loc-ratio-enemy"
+                                :style="{ flex: row.enemyTotal || 0.05 }"
+                              ></div>
+                            </div>
+                            <div class="force-loc-card-totals">
+                              <span class="force-loc-num force-loc-num--own">{{ row.ownTotal }}</span>
+                              <span class="force-loc-num-sep">·</span>
+                              <span class="force-loc-num force-loc-num--enemy">{{ row.enemyTotal }}</span>
+                            </div>
+                          </div>
+                          <!-- 单位信息 -->
+                          <div class="force-loc-card-body">
+                            <div v-if="row.ownTotal" class="force-loc-unit-line force-loc-unit-line--own">
+                              <span class="force-loc-unit-badge">我</span>
+                              <span class="force-loc-unit-text">{{ row.ownUnits }}</span>
+                              <em class="force-loc-action-tag">{{ row.ownActions }}</em>
+                            </div>
+                            <div v-if="row.enemyTotal" class="force-loc-unit-line force-loc-unit-line--enemy">
+                              <span class="force-loc-unit-badge">敌</span>
+                              <span class="force-loc-unit-text">{{ row.enemyUnits }}</span>
+                              <em class="force-loc-action-tag">{{ row.enemyActions }}</em>
+                            </div>
+                          </div>
+                        </div>
+                        <div v-if="!forceDeploymentLocationRows.length" class="sit-unit-empty">暂无可展示部署位置</div>
+                      </div>
+                      </article>
+                    </div>
+
+                    <article class="force-cell force-cell--llm situation-card situation-card-span2 force-cell-llm-fill">
+                      <div class="force-cell-glow force-cell-glow--magenta"></div>
+                      <div class="situation-card-head force-llm-head">
+                        <div>
+                          <span>智能体协同建议</span>
+                          <small class="force-llm-source">
+                            <template v-if="forceLlmAdviceLoading">调用模型中…</template>
+                            <template v-else-if="forceDispositionAdviceIsApi">API · {{ forceLlmAdvice.loadedAt }} · {{ forceLlmAdvice.source }}</template>
+                            <template v-else>本地启发式预览 · 点击下方调用大模型</template>
+                          </small>
+                        </div>
+                        <button
+                          type="button"
+                          class="force-llm-refresh"
+                          :disabled="forceLlmAdviceLoading"
+                          @click="refreshForceLlmAdvice"
+                        >
+                          {{ forceLlmAdviceLoading ? "生成中…" : "调用大模型生成" }}
+                        </button>
+                      </div>
+                      <p v-if="forceLlmAdvice.errorText" class="force-llm-error">{{ forceLlmAdvice.errorText }}</p>
+                      <details
+                        v-if="forceLlmAdvice.errorText && (forceLlmAdvice.answerRaw || (forceLlmAdvice.traces && forceLlmAdvice.traces.length))"
+                        class="deerflow-console-tech-details"
+                      >
+                        <summary>技术明细 · 原始模型输出/轨迹（用于排查 json_parse）</summary>
+                        <div v-if="forceLlmAdvice.traces && forceLlmAdvice.traces.length" class="deerflow-console-readout">
+                          <p class="deerflow-console-readout-line">
+                            <span class="deerflow-console-readout-k">traces</span>{{ forceLlmAdvice.traces.join(" · ") }}
+                          </p>
+                        </div>
+                        <div v-if="forceLlmAdvice.answerRaw" class="deerflow-console-json-preview">
+                          <strong class="deerflow-console-subhead">answer_raw（截断）</strong>
+                          <pre class="deerflow-console-pre deerflow-console-pre--tall">{{ forceLlmAdvice.answerRaw }}</pre>
+                        </div>
+                      </details>
+                      <div class="force-advice-grid-v2 force-advice-grid-v2--llm-fill">
+                        <div
+                          v-for="section in forceDispositionAdviceSections"
+                          :key="'overlay-' + section.key + '-' + section.sourceTag"
+                          class="force-advice-card"
+                          :class="'force-advice-card--' + (section.key || 'support')"
+                        >
+                          <div class="force-advice-card-head">
+                            <span class="force-advice-badge">{{ section.sourceTag === 'api' ? 'LLM' : 'LOC' }}</span>
+                            <strong>{{ section.title }}</strong>
+                          </div>
+                          <div class="force-advice-card-body">
+                            <p class="force-advice-summary">{{ section.summary }}</p>
+                            <p class="force-advice-detail">{{ section.detail }}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                </div>
+                </div>
+
+                <div v-show="activeRightLayer === 'critical'" class="situation-module-text-fill panel-critical-targets situation-scroll-scope">
+                  <div class="panel-head panel-head--critical-overlay">
+                    <div class="critical-head-toolbar-wrap">
+                      <div class="critical-head-toolbar">
+                        <button
+                          type="button"
+                          class="critical-strike-advice-refresh"
+                          :disabled="strikeTargetAdviceLoading"
+                          @click="refreshStrikeTargetAdvice"
+                        >
+                          {{ strikeTargetAdviceLoading ? "生成中…" : "刷新打击建议" }}
+                        </button>
+                        <div class="critical-filter-panel">
+                          <button
+                            type="button"
+                            class="critical-filter-main"
+                            :class="{ active: activeCriticalTargetCategory === 'all' }"
+                            @click="toggleCriticalCategoryMenu"
+                          >
+                            {{ criticalTargetFilterLabel }}
+                          </button>
+                          <div v-if="criticalCategoryMenuOpen" class="critical-filter-menu">
+                            <button
+                              v-for="opt in criticalTargetFilterOptions"
+                              :key="`overlay-ct-opt-${opt.key}`"
+                              type="button"
+                              class="critical-filter-item"
+                              :class="[`cat-${opt.key}`, { active: activeCriticalTargetCategory === opt.key }]"
+                              @click="selectCriticalCategory(opt.key)"
+                            >
+                              <span>{{ opt.label }}</span>
+                              <em>{{ opt.count }}</em>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <span class="panel-meta critical-overlay-meta">{{ criticalTargetLastSeenText }} · 显示 {{ filteredCriticalTargetItems.length }}/{{ criticalTargetItems.length }} 个</span>
+                  </div>
+
+                  <div class="critical-target-body" :class="{ stale: criticalTargetReady && criticalTargetIsStale }">
+                    <div class="critical-target-map-card critical-strike-advice-card critical-pane critical-pane-advice">
+                      <div class="critical-target-map-head critical-strike-advice-head">
+                        <div>
+                          <span>智能体打击建议</span>
+                          <small class="critical-strike-advice-source">
+                            <template v-if="strikeTargetAdviceLoading">调用模型中…</template>
+                            <template v-else-if="strikeTargetAdvice.ok">API · {{ strikeTargetAdvice.loadedAt }} · {{ strikeTargetAdvice.source }}</template>
+                            <template v-else>基于当前态势与下方关键节点列表 · 点击生成</template>
+                          </small>
+                        </div>
+                      </div>
+                      <p v-if="criticalTargetReady && criticalTargetIsStale" class="critical-stale-note">{{ criticalTargetLastSeenText }}，建议结合列表中「上次识别」节点理解模型输出。</p>
+                      <p v-if="strikeTargetAdvice.errorText" class="force-llm-error">{{ strikeTargetAdvice.errorText }}</p>
+                      <div
+                        v-if="strikeTargetAdvice.advice"
+                        class="critical-strike-advice-body markdown-body"
+                        v-html="renderMarkdown(strikeTargetAdvice.advice)"
+                      ></div>
+                      <p v-else-if="!strikeTargetAdviceLoading" class="critical-strike-advice-placeholder">
+                        将当前「关键打击节点」清单与 Redis/写盘态势一并提交给大模型，生成首要/备选打击目标与兵力、时机、风险提示。节点为空时仍可根据全局态势给出方向性建议。
+                      </p>
+                    </div>
+
+                    <article class="critical-target-detail critical-pane critical-pane-detail" v-if="criticalTargetReady && selectedCriticalTarget">
+                      <div class="critical-detail-title">
+                        <span>关键节点详情</span>
+                        <strong>{{ selectedCriticalTarget.priorityScore }}</strong>
+                      </div>
+                      <p><b>{{ selectedCriticalTarget.name }}</b></p>
+                      <p>{{ selectedCriticalTarget.reason }}</p>
+                      <div class="critical-score-grid">
+                        <div>
+                          <span>目标价值</span>
+                          <strong>{{ selectedCriticalTarget.valueScore }}</strong>
+                        </div>
+                        <div>
+                          <span>威胁程度</span>
+                          <strong>{{ selectedCriticalTarget.threatScore }}</strong>
+                        </div>
+                      </div>
+                      <div class="critical-detail-fields">
+                        <p><span>类别</span><strong>{{ selectedCriticalTarget.categoryLabel }}</strong></p>
+                        <p><span>位置</span><strong>{{ selectedCriticalTarget.location }}</strong></p>
+                        <p><span>动作</span><strong>{{ selectedCriticalTarget.action }}</strong></p>
+                        <p><span>影响蓝方</span><strong>{{ selectedCriticalTarget.impactedBlueUnits }}</strong></p>
+                      </div>
+                    </article>
+                    <article class="critical-target-detail critical-pane critical-pane-detail" v-else>
+                      <div class="critical-detail-title">
+                        <span>关键节点详情</span>
+                        <strong>—</strong>
+                      </div>
+                      <p>
+                        这里会展示你选中的高价值目标（建筑/科技/兵力集结点）及其价值、威胁、位置与动作。
+                        当前还未解析到敌方关键目标数据时，将显示这份默认说明。
+                      </p>
+                      <div class="critical-detail-fields">
+                        <p><span>类别</span><strong>经济 / 科技 / 兵力 / 防御</strong></p>
+                        <p><span>位置</span><strong>例如：A1 / B2 / 主矿外坡</strong></p>
+                        <p><span>动作</span><strong>例如：扩张 / 集结 / 推进 / 防守</strong></p>
+                        <p><span>影响蓝方</span><strong>例如：主矿工人、关键科技线</strong></p>
+                      </div>
+                    </article>
+
+                    <div class="critical-target-list critical-pane critical-pane-list">
+                      <div class="critical-list-head">
+                        <span>敌方关键节点清单</span>
+                        <em>{{ criticalTargetReady ? `已生成 ${filteredCriticalTargetItems.length} 个` : "等待生成列表" }}</em>
+                      </div>
+                      <button
+                        v-for="target in filteredCriticalTargetItems"
+                        :key="`overlay-list-${target.key}`"
+                        type="button"
+                        class="critical-target-row"
+                        :class="[{ active: selectedCriticalTarget && selectedCriticalTarget.key === target.key }, `cat-${target.category}`]"
+                        @click="selectCriticalTarget(target)"
+                      >
+                        <span class="critical-row-rank">{{ target.priorityScore }}</span>
+                        <span class="critical-row-main">
+                          <strong>{{ target.name }} ×{{ target.count }} <b class="critical-row-cat">{{ target.categoryLabel }}</b></strong>
+                          <em>{{ target.stale ? "上次识别" : "当前可见" }} · {{ target.categoryLabel }} · {{ target.location }} · {{ target.reason }}</em>
+                        </span>
+                        <span class="critical-row-scores">价值 {{ target.valueScore }} / 威胁 {{ target.threatScore }}</span>
+                      </button>
+                      <div v-if="criticalTargetReady && !filteredCriticalTargetItems.length" class="empty-state compact">
+                        <h3>该维度暂无可见关键节点</h3>
+                      </div>
+                      <div v-else-if="!criticalTargetReady" class="empty-state compact">
+                        <h3>敌方关键节点清单</h3>
+                        <p>当出现敌方可见单位/建筑后，这里会自动生成高价值目标列表。你也可以先点上方「刷新打击建议」，让模型基于当前态势给出方向性目标。</p>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <div v-show="activeRightLayer === 'killchain'" class="situation-module-text-fill panel-killchain situation-scroll-scope">
+                  <div class="killchain-body">
+                    <article class="killchain-list-board">
+                      <div class="killchain-list-head">
+                        <span>敌方杀伤链发现</span>
+                        <strong>待破坏链路（打击/探测/防御/保障）</strong>
+                      </div>
+                      <div class="killchain-group-list">
+                        <section
+                          v-for="group in killChainDimensionGroups"
+                          :key="`overlay-group-${group.key}`"
+                          class="killchain-group"
+                          :class="{ active: killChainSelectedPlan && killChainSelectedPlan.tasks.some((task) => task.dimension === group.key) }"
+                        >
+                          <header class="killchain-group-head">
+                            <span>{{ group.icon }} {{ group.label }}</span>
+                            <em>{{ group.chains.length }} 条</em>
+                          </header>
+                          <button
+                            v-for="chain in group.chains"
+                            :key="'overlay-' + chain.key"
+                            type="button"
+                            class="killchain-row"
+                            :class="{ active: isChainInSelectedPlan(chain.key), linked: isChainInSelectedPlan(chain.key) }"
+                            @click="focusKillPlanByChain(chain.key)"
+                          >
+                            <div class="killchain-row-main">
+                              <strong>{{ chain.title }}</strong>
+                              <p>{{ chain.summary }}</p>
+                            </div>
+                            <div class="killchain-row-side">
+                              <span class="killchain-status" :class="chain.status">{{ chain.status }}</span>
+                              <em>可信度 {{ chain.confidenceLevel || "可行" }}</em>
+                            </div>
+                          </button>
+                          <div v-if="!group.chains.length" class="killchain-group-empty">
+                            {{ killChainReady ? "暂无可构建链路" : "等待杀伤链数据（点「刷新分析」后生成）" }}
+                          </div>
+                        </section>
+                      </div>
+                    </article>
+
+                    <article
+                      class="killchain-map-board"
+                      :class="{ 'has-flow': Boolean(killChainSelectedPlan && killChainEnemyStrikeFlow && killChainEnemyStrikeFlow.steps && killChainEnemyStrikeFlow.steps.length) }"
+                    >
+                      <div class="killchain-map-head">
+                        <span>作战模式</span>
+                        <strong>{{ killChainSelectedPlan ? `${killChainSelectedPlan.title} · 优先级 ${killChainSelectedPlan.planPriorityLevel || "可行"}` : "等待方案" }}</strong>
+                        <button
+                          type="button"
+                          class="killchain-llm-refresh"
+                          :disabled="killChainLlmPlansLoading"
+                          @click="refreshKillChainLlmPlans({ force: true })"
+                        >
+                          {{ killChainLlmPlansLoading ? "模型生成中..." : "刷新模型方案" }}
+                        </button>
+                      </div>
+                      <p v-if="killChainLlmPlans.errorText" class="killchain-llm-error">
+                        大模型方案暂不可用：{{ killChainLlmPlans.errorText }}，当前显示本地敌链兜底方案。
+                      </p>
+                      <p v-else-if="killChainLlmPlans.ok" class="killchain-llm-meta">
+                        作战模式由大模型生成 · {{ killChainLlmPlans.loadedAt || "刚刚" }} · {{ killChainLlmPlans.source || "态势源" }}
+                      </p>
+                      <div class="killchain-plan-switch" role="tablist" aria-label="作战模式切换">
+                        <button
+                          v-for="plan in killChainPlans"
+                          :key="`overlay-plan-${plan.key}`"
+                          type="button"
+                          role="tab"
+                          :aria-selected="killChainSelectedPlan && killChainSelectedPlan.key === plan.key"
+                          :class="{ active: killChainSelectedPlan && killChainSelectedPlan.key === plan.key }"
+                          @click="focusKillPlan(plan.key)"
+                        >
+                          <span>{{ plan.rank }}. {{ plan.title }}</span>
+                          <em>{{ plan.tasks.length }} 项行动</em>
+                        </button>
+                      </div>
+                      <div v-if="killChainSelectedPlan" class="killchain-stage-track">
+                        <div class="killchain-stage-head">
+                          <span>{{ killChainSelectedPlan.title }}</span>
+                          <em>{{ killChainSelectedPlan.description }}</em>
+                        </div>
+                        <div class="killplan-exec-grid">
+                          <section
+                            v-for="group in killChainPlanTaskGroups"
+                            :key="`overlay-exec-${group.dimension}`"
+                            class="killplan-dim-card"
+                            :class="`dim-${group.dimension}`"
+                          >
+                            <header class="killplan-dim-head">
+                              <span>{{ group.icon }} {{ group.label }}</span>
+                              <em>{{ group.items.length }} 项</em>
+                            </header>
+                            <div v-if="group.items.length" class="killplan-task-list">
+                              <article v-for="task in group.items" :key="'overlay-' + task.taskKey" class="killplan-task-row">
+                                <div class="killplan-task-title">{{ task.title }}</div>
+                                <p class="killplan-task-desc">{{ task.summary || "按当前态势执行链路破坏任务。" }}</p>
+                                <div class="killplan-task-meta">
+                                  <span>目标 {{ task.targetLocation }}</span>
+                                  <span>优先级 {{ task.priorityLevel || "可行" }}</span>
+                                  <span>可执行度 {{ task.executabilityLevel || "可行" }}</span>
+                                  <span class="status">{{ task.status }}</span>
+                                </div>
+                              </article>
+                            </div>
+                            <div v-else class="killplan-dim-empty">本方案未分配此维度任务</div>
+                          </section>
+                        </div>
+                      </div>
+                      <div v-else class="empty-state compact">
+                        <h3>作战模式面板</h3>
+                        <p>杀伤链数据生成后，这里会出现可选作战模式（方案）与四维任务分解。你也可以先在左侧查看链路分组结构。</p>
+                      </div>
+
+                      <section v-if="killChainSelectedPlan" class="killplan-strikeflow-board">
+                        <div class="killplan-strikeflow-head">
+                          <span>敌链破坏步骤流</span>
+                          <em>{{ killChainEnemyStrikeFlow.summary }}</em>
+                        </div>
+                        <div v-if="killChainEnemyStrikeFlow.steps.length" class="killplan-strikeflow-track">
+                          <div v-for="(step, idx) in killChainEnemyStrikeFlow.steps" :key="'overlay-' + step.key" class="killplan-strikeflow-layer">
+                            <article class="killplan-strikeflow-step" :class="`dim-${step.dim}`">
+                              <div class="step-order">{{ step.order }}</div>
+                              <div class="step-main">
+                                <strong>{{ step.title }}</strong>
+                                <p>{{ step.subtitle }}</p>
+                              </div>
+                            </article>
+                            <div v-if="idx < killChainEnemyStrikeFlow.steps.length - 1" class="strikeflow-connector" aria-hidden="true">
+                              <svg viewBox="0 0 24 44" preserveAspectRatio="none">
+                                <path d="M12 2 L12 34"></path>
+                                <path d="M7 29 L12 36 L17 29"></path>
+                                <circle cx="12" cy="2" r="1.8"></circle>
+                              </svg>
+                            </div>
+                          </div>
+                        </div>
+                        <div v-else class="killplan-strikeflow-empty">暂无敌方链路打击步骤</div>
+                      </section>
+                      <section v-else class="killplan-strikeflow-board">
+                        <div class="killplan-strikeflow-head">
+                          <span>敌链破坏步骤流</span>
+                          <em>等待生成步骤</em>
+                        </div>
+                        <div class="killplan-strikeflow-empty">
+                          当选择某个作战模式后，这里会生成“破坏敌方链路”的步骤流，用于指导执行顺序与切换条件。
+                        </div>
+                      </section>
+                    </article>
+                  </div>
+                </div>
+
+                <div v-show="activeRightLayer === 'risk'" class="situation-module-text-fill situation-scroll-scope">
+                  <div class="situation-grid force-situation-grid deerflow-module-grid deerflow-risk-grid">
+                    <article class="situation-card situation-card-span2 risk-four-panel">
+                      <div class="situation-card-head risk-four-head">
+                        <span>四维风险分析</span>
+                        <span class="risk-four-total-badge">
+                          {{ deerflowRiskDimensionGroups.reduce((s, g) => s + g.count, 0) }} 项威胁
+                        </span>
+                      </div>
+                      <div class="risk-four-grid">
+                        <div
+                          v-for="group in deerflowRiskDimensionGroups"
+                          :key="`overlay-risk-dim-${group.key}`"
+                          class="risk-dim-card"
+                          :class="[
+                            'risk-dim-card--' + group.key,
+                            { 'is-active': riskHighlightGroupKey === group.key },
+                            { 'has-risk': group.count > 0 }
+                          ]"
+                          role="button"
+                          tabindex="0"
+                          @click="toggleRiskHighlight(group.key)"
+                          @keydown.enter="toggleRiskHighlight(group.key)"
+                          @keydown.space.prevent="toggleRiskHighlight(group.key)"
+                        >
+                          <div class="risk-dim-card-top">
+                            <span class="risk-dim-label">{{ group.label }}</span>
+                            <span class="risk-dim-count-badge" :class="{ 'has-items': group.count > 0 }">{{ group.count }}</span>
+                          </div>
+                          <div class="risk-dim-card-meta">
+                            <span class="risk-dim-target">▸ {{ group.topTarget }}</span>
+                            <span v-if="group.topEta !== null" class="risk-dim-eta">{{ group.topEta }}s</span>
+                            <span
+                              v-if="group.topScore !== '--'"
+                              class="risk-dim-score"
+                              :class="group.topScore >= 7 ? 'high' : group.topScore >= 4 ? 'mid' : 'low'"
+                            >威胁 {{ group.topScore }}</span>
+                          </div>
+                          <p class="risk-dim-reason">{{ group.topReason || (group.count ? '威胁分析中…' : '暂无风险') }}</p>
+                          <!-- 选中状态指示箭头 -->
+                          <span v-if="riskHighlightGroupKey === group.key" class="risk-dim-active-arrow">◀ 地图已高亮</span>
+                        </div>
+                      </div>
+                      <div v-if="!(deerflowRisk.risk.risks || []).length" class="deerflow-llm-intent-empty risk-empty-state">
+                        <div class="risk-empty-icon">⚠</div>
+                        <div class="deerflow-llm-intent-empty-title">暂无风险条目</div>
+                        <p class="deerflow-llm-intent-empty-hint">执行「刷新分析」后将自动填充</p>
+                      </div>
+                    </article>
+
+                    <article class="situation-card situation-card-span2 deerflow-hero-card deerflow-risk-hero deerflow-risk-console-card">
+                      <div class="situation-card-head deerflow-intent-head-band">
+                        <span>风险分析智能体</span>
+                      </div>
+                      <!-- 默认空态：无处置方案且无引导要点时显示 -->
+                      <div v-if="!deerflowConsoleResponsePlan && !deerflowConsoleGuidanceBullets.length" class="deerflow-llm-intent-empty">
+                        <div class="deerflow-llm-intent-empty-ring">
+                          <span class="deerflow-llm-intent-empty-ai">AI</span>
+                        </div>
+                        <div class="deerflow-llm-intent-empty-title">风险分析智能体就绪</div>
+                        <div class="deerflow-llm-intent-empty-dots">
+                          <span></span><span></span><span></span>
+                        </div>
+                        <p class="deerflow-llm-intent-empty-hint">执行「刷新分析」启动 智能体 流水线<br>以生成风险处置建议与指令条目</p>
+                      </div>
+                      <!-- 有数据时正常展示 -->
+                      <p v-if="deerflowConsoleResponsePlan && deerflowConsoleResponsePlan.plan" class="situation-insight force-insight-full deerflow-console-lead">
+                        {{ deerflowConsoleResponsePlan.plan }}
+                      </p>
+                      <ul v-if="deerflowConsoleGuidanceBullets.length" class="deerflow-console-hint-list">
+                        <li v-for="(hint, hi) in deerflowConsoleGuidanceBullets" :key="'overlay-risk-hint-' + hi">{{ hint }}</li>
+                      </ul>
+                      <section v-if="deerflowConsoleResponsePlan" class="deerflow-console-plan-panel">
+                        <strong class="deerflow-console-subhead deerflow-console-subhead--inset">处置要点（智能体 risk_response）</strong>
+                        <p v-if="deerflowConsoleResponsePlan.mode" class="deerflow-console-plan-mode">
+                          运行模式：<em>{{ deerflowConsoleResponsePlan.mode }}</em>
+                          · 建议指令条目 {{ deerflowConsoleResponsePlan.commandCount }}
+                        </p>
+                        <ul v-if="deerflowConsoleResponsePlan.bullets.length" class="deerflow-console-plan-bullets">
+                          <li v-for="b in deerflowConsoleResponsePlan.bullets" :key="'overlay-' + b.key">{{ b.line }}</li>
+                        </ul>
+                        <p v-if="deerflowConsoleResponsePlan.hitl && deerflowConsoleResponsePlan.hitlPrompt" class="deerflow-console-plan-hitl">
+                          <strong>需人工确认</strong>{{ deerflowConsoleResponsePlan.hitlPrompt }}
+                        </p>
+                        <p v-else-if="deerflowConsoleResponsePlan.hitl" class="deerflow-console-plan-hitl"><strong>需人工确认后再下发操作建议。</strong></p>
+                      </section>
+
+                      <details class="deerflow-console-tech-details">
+                        <summary>态势摘要（辅助理解）</summary>
+                        <div class="deerflow-console-readout">
+                          <p v-if="deerflowConsoleGameSnapshot" class="deerflow-console-readout-line">
+                            <span class="deerflow-console-readout-k">快照</span>{{ deerflowConsoleGameSnapshot }}
+                          </p>
+                          <p v-if="deerflowConsoleIntentSummary" class="deerflow-console-readout-line">
+                            <span class="deerflow-console-readout-k">意图</span>{{ deerflowConsoleIntentSummary }}
+                          </p>
+                          <p v-if="deerflowConsoleRiskSummary" class="deerflow-console-readout-line">
+                            <span class="deerflow-console-readout-k">风险</span>{{ deerflowConsoleRiskSummary }}
+                          </p>
+                        </div>
+                        <section v-if="deerflowConsoleThreatHighlights.length" class="deerflow-console-threat-panel" aria-label="优先威胁条目">
+                          <strong class="deerflow-console-subhead deerflow-console-subhead--inset">威胁优先序（节选）</strong>
+                          <ul class="deerflow-console-threat-list">
+                            <li v-for="t in deerflowConsoleThreatHighlights" :key="'overlay-t-' + t.key">
+                              <span class="deerflow-console-threat-headline">{{ t.headline }}</span>
+                              <span v-if="t.reason" class="deerflow-console-threat-reason">{{ t.reason }}</span>
+                            </li>
+                          </ul>
+                        </section>
+                      </details>
+                      <dl class="deerflow-console-dl">
+                        <div><dt>线程 ID</dt><dd><code>{{ deerflowRisk.thread_id || "—" }}</code></dd></div>
+                        <div><dt>运行模式</dt><dd>{{ deerflowRisk.mode === "live" ? "实时" : "回放" }}（{{ deerflowRisk.mode }}）</dd></div>
+                        <div>
+                          <dt>整体状态</dt>
+                          <dd :class="{ ok: deerflowRisk.ok, bad: !deerflowRisk.ok && deerflowRisk.thread_id }">
+                            {{ deerflowRisk.ok ? "产物校验通过" : deerflowRisk.thread_id ? "未完成或缺 risk 产物" : "尚未执行" }}
+                          </dd>
+                        </div>
+                      </dl>
+                      <div class="deerflow-stage-pills" aria-label="各阶段 Redis 缓存">
+                        <span
+                          v-for="st in deerflowRiskPipelineStages"
+                          :key="'overlay-stage-' + st.key"
+                          class="deerflow-stage-pill"
+                          :class="{ filled: st.filled }"
+                          :title="'字段数约 ' + st.fieldCount"
+                        >
+                          {{ st.label }}
+                        </span>
+                      </div>
+                      <div v-if="deerflowRiskConsoleTracesPreview.length" class="deerflow-console-traces-block">
+                        <strong class="deerflow-console-subhead">流水线轨迹（最近 {{ deerflowRiskConsoleTracesPreview.length }} 条）</strong>
+                        <ul class="deerflow-console-trace-ul">
+                          <li v-for="(tr, ti) in deerflowRiskConsoleTracesPreview" :key="'overlay-risk-tr-' + ti">{{ tr }}</li>
+                        </ul>
+                      </div>
+                      <!-- pipeline 控制台输出（失败时重要调试信息） -->
+                      <details v-if="deerflowRisk.pipeline_stdout" class="deerflow-console-tech-details">
+                        <summary>流水线控制台输出（排查 S5/S6 超时用）</summary>
+                        <pre class="deerflow-pipeline-stdout">{{ deerflowRisk.pipeline_stdout }}</pre>
+                      </details>
+
+                      <details
+                        v-if="deerflowRiskDispositionSnippet || deerflowRiskResponseSnippet"
+                        class="deerflow-console-tech-details"
+                      >
+                        <summary>技术明细 · 原始 JSON 片段（供排查）</summary>
+                        <div v-if="deerflowRiskDispositionSnippet" class="deerflow-console-json-preview">
+                          <strong class="deerflow-console-subhead">S3 disposition（截断）</strong>
+                          <pre class="deerflow-console-pre">{{ deerflowRiskDispositionSnippet }}</pre>
+                        </div>
+                        <div v-if="deerflowRiskResponseSnippet" class="deerflow-console-json-preview">
+                          <strong class="deerflow-console-subhead">risk_response（截断）</strong>
+                          <pre class="deerflow-console-pre deerflow-console-pre--tall">{{ deerflowRiskResponseSnippet }}</pre>
+                        </div>
+                      </details>
+                      <span v-if="deerflowRisk.errorText" class="parser-queue-empty deerflow-console-err">{{ deerflowRisk.errorText }}</span>
+                    </article>
+                  </div>
+                </div>
+
+                <div v-show="activeRightLayer === 'intent'" class="situation-module-text-fill situation-scroll-scope">
+                  <div class="situation-grid force-situation-grid deerflow-module-grid deerflow-intent-grid deerflow-intent-grid--v2">
+                    <article class="situation-card situation-card-span2 deerflow-intent-panel-strategy">
+                      <div class="situation-card-head deerflow-intent-head-band">
+                        <span>敌方核心策略</span>
+                        <div class="deerflow-intent-confidence-pill">
+                          置信度 <em>{{ Number(deerflowRisk.intent.confidence || 0).toFixed(2) }}</em>
+                        </div>
+                      </div>
+                      <div class="sit-composition-scroll deerflow-intent-scroll-stack">
+                        <!-- 高等级意图概览条幅（有高等级意图时显示） -->
+                        <div v-if="intentHighRows.length" class="deerflow-intent-high-summary">
+                          <span class="deerflow-intent-high-summary-title">地图高亮中</span>
+                          <div class="deerflow-intent-high-summary-chips">
+                            <span
+                              v-for="r in intentHighRows"
+                              :key="`high-chip-${r.key}`"
+                              class="intent-high-chip"
+                            >⚡ {{ r.label }}</span>
+                          </div>
+                        </div>
+                        <div class="deerflow-intent-four-grid deerflow-intent-dim-grid" role="region" aria-label="四维度意图">
+                          <div
+                            v-for="row in deerflowIntentDimensionRows"
+                            :key="`overlay-intent-dim-${row.key}`"
+                            class="deerflow-intent-dim-cell"
+                            :class="['deerflow-intent-dim-cell--' + row.key, { 'is-high': row.level === 'high' }]"
+                          >
+                            <div class="deerflow-intent-dim-cell-top">
+                              <span class="deerflow-intent-dim-label">{{ row.label }}</span>
+                              <em class="intent-level-badge intent-level-badge--v2" :class="`lv-${row.level}`">{{ row.levelCn }}</em>
+                            </div>
+                            <p class="deerflow-intent-dim-desc">{{ row.description }}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+
+                    <article class="situation-card situation-card-span2 deerflow-main-card deerflow-main-card--intent deerflow-intent-panel-evidence">
+                      <div class="situation-card-head deerflow-intent-head-band">
+                        <span>证据链</span>
+                      </div>
+                      <div class="sit-composition-scroll">
+                        <div class="deerflow-intent-four-grid deerflow-intent-evidence-grid" role="region" aria-label="证据链四维度">
+                          <div
+                            v-for="group in deerflowIntentEvidenceGroups"
+                            :key="`overlay-intent-group-${group.key}`"
+                            class="deerflow-intent-evidence-cell"
+                            :class="'deerflow-intent-evidence-cell--' + group.key"
+                          >
+                            <strong class="deerflow-intent-evidence-title">{{ group.label }}</strong>
+                            <p v-if="group.items.length" class="deerflow-intent-evidence-body">{{ group.items.join("；") }}</p>
+                            <p v-else class="deerflow-intent-evidence-empty">暂无该维度证据。</p>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+
+                    <article class="situation-card situation-card-span2 deerflow-history-card deerflow-llm-intent-panel deerflow-intent-panel-llm">
+                      <div class="situation-card-head deerflow-intent-head-band">
+                        <span>意图分析智能体</span>
+                        <strong v-if="deerflowRisk.thread_id" class="deerflow-thread-tag">{{ deerflowRisk.thread_id.slice(0, 10) }}…</strong>
+                      </div>
+                      <div class="sit-composition-scroll deerflow-llm-intent-scroll">
+                        <template v-if="deerflowIntentLlmAnalysisBlocks.length">
+                          <div v-for="b in deerflowIntentLlmAnalysisBlocks" :key="`overlay-intent-llm-${b.key}`" class="deerflow-llm-intent-block">
+                            <strong>{{ b.title }}</strong>
+                            <p class="deerflow-llm-intent-block-body">{{ b.body }}</p>
+                          </div>
+                        </template>
+                        <div v-else class="deerflow-llm-intent-empty">
+                          <div class="deerflow-llm-intent-empty-ring">
+                            <span class="deerflow-llm-intent-empty-ai">AI</span>
+                          </div>
+                          <div class="deerflow-llm-intent-empty-title">意图分析智能体就绪</div>
+                          <div class="deerflow-llm-intent-empty-dots">
+                            <span></span><span></span><span></span>
+                          </div>
+                          <p class="deerflow-llm-intent-empty-hint">执行「刷新分析」启动 智能体 流水线<br>以生成结构化意图评估报告</p>
+                        </div>
+                      </div>
+                    </article>
+                  </div>
+                </div>
+
+                <div v-show="activeRightLayer === 'plan'" class="situation-module-text-fill panel panel-agent situation-module-plan-root situation-scroll-scope">
+                <div class="planner-view-switch" role="tablist" aria-label="方案生成视图切换">
+                  <button
+                    type="button"
+                    role="tab"
+                    :aria-selected="activePlannerTab === 'bus'"
+                    :class="{ active: activePlannerTab === 'bus' }"
+                    @click="activePlannerTab = 'bus'"
+                  >
+                    方案生成智能体
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    :aria-selected="activePlannerTab === 'tasksplit'"
+                    :class="{ active: activePlannerTab === 'tasksplit' }"
+                    @click="activePlannerTab = 'tasksplit'"
+                  >
+                    任务划分
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    :aria-selected="activePlannerTab === 'unitcomp'"
+                    :class="{ active: activePlannerTab === 'unitcomp' }"
+                    @click="activePlannerTab = 'unitcomp'"
+                  >
+                    单元指定
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    :aria-selected="activePlannerTab === 'parser'"
+                    :class="{ active: activePlannerTab === 'parser' }"
+                    @click="activePlannerTab = 'parser'"
+                  >
+                    指令解析
+                  </button>
+                </div>
+
+                <div class="agent-body planner-dual-body planner-tab-body situation-module-planner-tab-body">
+                  <article v-show="activePlannerTab === 'bus'" class="planner-dual-column planner-tab-panel">
+                    <div class="planner-dual-head">方案生成智能体</div>
+                    <div ref="plannerConversation" class="conversation-stream" @scroll="handlePlannerScroll">
+                      <template v-if="plannerHistoryItems.length || plannerLiveItem">
+                        <template v-for="item in plannerHistoryItems" :key="item.key">
+                          <div class="chat-row script">
+                            <article class="chat-card script">
+                              <div class="chat-title">脚本输入</div>
+                              <div class="chat-content chat-prompt-text">{{ item.prompt }}</div>
+                            </article>
+                            <span class="chat-avatar prompt-avatar" aria-hidden="true">
+                              <svg viewBox="0 0 24 24" fill="none">
+                                <rect x="5" y="4.5" width="14" height="15" rx="3" stroke="currentColor" stroke-width="1.8"></rect>
+                                <path d="M8 9h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                                <path d="M8 13h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                              </svg>
+                            </span>
+                          </div>
+                          <div class="chat-row agent">
+                            <span class="chat-avatar agent-avatar" aria-hidden="true">
+                              <svg viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="3.2" fill="currentColor"></circle>
+                                <path d="M12 3.5v3.1M12 17.4v3.1M20.5 12h-3.1M6.6 12H3.5M18.01 5.99l-2.19 2.19M8.18 15.82l-2.19 2.19M18.01 18.01l-2.19-2.19M8.18 8.18L5.99 5.99" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                              </svg>
+                            </span>
+                            <article class="chat-card agent">
+                              <template v-if="replyIsTypingForItem(item)">
+                                <pre class="chat-content">{{ replyDisplayText(item) }}<span class="typing-cursor">|</span></pre>
+                              </template>
+                              <template v-else>
+                                <div class="chat-content chat-markdown" v-html="renderMarkdown(replyDisplayText(item))"></div>
+                              </template>
+                              <button
+                                v-if="replyShouldCollapse(item)"
+                                type="button"
+                                class="reply-toggle-btn"
+                                @click="toggleReplyExpand(item)"
+                              >{{ isReplyExpanded(item) ? "收起" : "展开全部" }}</button>
+                            </article>
+                          </div>
+                        </template>
+                        <template v-if="plannerLiveItem">
+                          <div class="chat-row script">
+                            <article class="chat-card script">
+                              <div class="chat-title">脚本输入</div>
+                              <div class="chat-content chat-prompt-text">{{ plannerLiveItem.prompt }}</div>
+                            </article>
+                            <span class="chat-avatar prompt-avatar" aria-hidden="true">
+                              <svg viewBox="0 0 24 24" fill="none">
+                                <rect x="5" y="4.5" width="14" height="15" rx="3" stroke="currentColor" stroke-width="1.8"></rect>
+                                <path d="M8 9h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                                <path d="M8 13h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                              </svg>
+                            </span>
+                          </div>
+                          <div class="chat-row agent">
+                            <span class="chat-avatar agent-avatar" aria-hidden="true">
+                              <svg viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="3.2" fill="currentColor"></circle>
+                                <path d="M12 3.5v3.1M12 17.4v3.1M20.5 12h-3.1M6.6 12H3.5M18.01 5.99l-2.19 2.19M8.18 15.82l-2.19 2.19M18.01 18.01l-2.19-2.19M8.18 8.18L5.99 5.99" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                              </svg>
+                            </span>
+                            <article class="chat-card agent">
+                              <template v-if="replyIsTypingForItem(plannerLiveItem)">
+                                <pre class="chat-content">{{ replyDisplayText(plannerLiveItem) }}<span class="typing-cursor">|</span></pre>
+                              </template>
+                              <template v-else>
+                                <div class="chat-content chat-markdown" v-html="renderMarkdown(replyDisplayText(plannerLiveItem))"></div>
+                              </template>
+                              <button
+                                v-if="replyShouldCollapse(plannerLiveItem)"
+                                type="button"
+                                class="reply-toggle-btn"
+                                @click="toggleReplyExpand(plannerLiveItem)"
+                              >{{ isReplyExpanded(plannerLiveItem) ? "收起" : "展开全部" }}</button>
+                            </article>
+                          </div>
+                        </template>
+                        <template v-if="plannerThinkingVisible">
+                          <div class="chat-row agent thinking-row">
+                            <span class="chat-avatar agent-avatar" aria-hidden="true">
+                              <svg viewBox="0 0 24 24" fill="none">
+                                <circle cx="12" cy="12" r="3.2" fill="currentColor"></circle>
+                                <path d="M12 3.5v3.1M12 17.4v3.1M20.5 12h-3.1M6.6 12H3.5M18.01 5.99l-2.19 2.19M8.18 15.82l-2.19 2.19M18.01 18.01l-2.19-2.19M8.18 8.18L5.99 5.99" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                              </svg>
+                            </span>
+                            <article class="chat-card agent thinking-card">
+                              <div class="thinking-inline">
+                                <span class="thinking-spinner" aria-hidden="true"></span>
+                                <p class="thinking-copy">智能体正在思考...</p>
+                              </div>
+                            </article>
+                          </div>
+                        </template>
+                      </template>
+                      <div v-else class="empty-state compact">
+                        <h3>等待方案生成</h3>
+                      </div>
+                    </div>
+                  </article>
+
+                  <article v-show="activePlannerTab === 'tasksplit'" class="planner-dual-column planner-tasksplit-column planner-tab-panel">
+                    <div class="planner-dual-head">任务划分</div>
+                    <div class="planner-tasksplit-body">
+                      <div class="planner-task-toolbar">
+                        <div class="planner-task-filters" role="tablist" aria-label="任务划分筛选">
+                          <button
+                            v-for="tab in plannerTaskFilterTabs"
+                            :key="`overlay-task-filter-${tab.key}`"
+                            type="button"
+                            class="planner-task-filter-chip"
+                            :class="{ active: activePlannerTaskFilter === tab.key }"
+                            :aria-selected="activePlannerTaskFilter === tab.key"
+                            role="tab"
+                            @click="activePlannerTaskFilter = tab.key"
+                          >
+                            <span>{{ tab.label }}</span>
+                            <em>{{ plannerTaskFilterCounts[tab.key] || 0 }}</em>
+                          </button>
+                        </div>
+                        <button
+                          v-if="plannerTaskCanExpandHistory"
+                          type="button"
+                          class="planner-task-history-toggle"
+                          @click="togglePlannerTaskHistory"
+                        >
+                          {{ plannerTaskShowAllHistory ? "折叠历史规划任务" : "展开全部历史规划任务" }}
+                        </button>
+                      </div>
+
+                      <div v-if="plannerTaskVisibleTurns.length" class="planner-task-turns">
+                        <article v-for="turn in plannerTaskVisibleTurns" :key="'overlay-' + turn.key" class="planner-task-turn">
+                          <header class="planner-task-turn-head">
+                            <strong>{{ turn.title }}</strong>
+                            <span>{{ turn.time }} · {{ turn.isLive ? "当前规划" : "历史规划" }} · {{ turn.tasks.length }} 项</span>
+                          </header>
+                          <div class="planner-task-list">
+                            <article
+                              v-for="task in turn.tasks"
+                              :key="`overlay-${turn.key}-${task.order}-${task.summaryCn}`"
+                              class="planner-task-row"
+                              :class="`type-${task.type}`"
+                            >
+                              <span class="planner-task-type">{{ task.typeLabel }}</span>
+                              <div class="planner-task-copy">
+                                <strong>{{ task.summaryCn }}</strong>
+                                <em v-if="task.detailCn">{{ task.detailCn }}</em>
+                              </div>
+                            </article>
+                          </div>
+                        </article>
+                      </div>
+                      <div v-else class="empty-state compact">
+                        <h3>暂无可划分任务</h3>
+                        <p>等待方案生成智能体产生包含执行指令的规划内容。</p>
+                      </div>
+                    </div>
+                  </article>
+
+                  <article v-show="activePlannerTab === 'unitcomp'" class="planner-dual-column planner-unit-column planner-tab-panel">
+                    <div class="planner-dual-head">单元指定</div>
+                    <div class="planner-unit-body">
+                      <div class="planner-task-toolbar">
+                        <div class="planner-task-filters" role="tablist" aria-label="单元指定筛选">
+                          <button
+                            v-for="tab in plannerTaskFilterTabs"
+                            :key="`overlay-unit-filter-${tab.key}`"
+                            type="button"
+                            class="planner-task-filter-chip"
+                            :class="{ active: activePlannerUnitFilter === tab.key }"
+                            :aria-selected="activePlannerUnitFilter === tab.key"
+                            role="tab"
+                            @click="activePlannerUnitFilter = tab.key"
+                          >
+                            <span>{{ tab.label }}</span>
+                            <em>{{ plannerUnitAssignFilterCounts[tab.key] || 0 }}</em>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div v-if="plannerUnitAssignRowsFiltered.length" class="planner-unit-list">
+                        <article
+                          v-for="row in plannerUnitAssignRowsFiltered"
+                          :key="'overlay-unit-' + row.key"
+                          class="planner-unit-row"
+                          :class="`type-${row.type}`"
+                        >
+                          <header class="planner-unit-row-head">
+                            <span class="planner-task-type">{{ row.typeLabel }}</span>
+                            <strong>{{ row.taskSummary }}</strong>
+                            <em>{{ row.turnTime }} · {{ row.isLive ? "当前规划" : row.turnTitle }}</em>
+                          </header>
+                          <div class="planner-unit-row-body">
+                            <div class="planner-unit-badges">
+                              <span
+                                v-for="unit in row.mappedUnits"
+                                :key="`overlay-${row.key}-${unit.label}`"
+                                class="planner-unit-badge"
+                              >
+                                {{ unit.label }}
+                              </span>
+                            </div>
+                            <span class="planner-match-level" :class="`level-${row.matchLevel}`">
+                              匹配度：{{ row.matchLevel }}
+                            </span>
+                          </div>
+                        </article>
+                      </div>
+                      <div v-else class="empty-state compact">
+                        <h3>暂无可映射任务</h3>
+                        <p>等待任务划分生成内容后再进行指令单位映射。</p>
+                      </div>
+                    </div>
+                  </article>
+
+                  <article v-show="activePlannerTab === 'parser'" class="planner-dual-column planner-parser-column planner-tab-panel">
+                    <div class="planner-dual-head">指令解析</div>
+                    <div class="parser-summary parser-summary-by-queue">
+                      <div class="parser-queue-stats parser-queue-executed">
+                        <div class="parser-queue-head">
+                          <span class="parser-queue-title">已执行</span>
+                          <span class="parser-queue-total">{{ executedCommandCount }}</span>
+                        </div>
+                        <div class="parser-queue-chips">
+                          <template v-for="stat in executedCategoryStats" :key="'overlay-ex-' + stat.key">
+                            <span v-if="stat.count > 0" class="summary-chip type-chip" :class="stat.key">{{ stat.label }} {{ stat.count }}</span>
+                          </template>
+                          <span v-if="executedCommandCount === 0" class="parser-queue-empty">暂无</span>
+                          <span v-else-if="!executedCategoryStats.some((s) => s.count > 0)" class="parser-queue-empty">待分类</span>
+                        </div>
+                      </div>
+                      <div class="parser-queue-stats parser-queue-pending">
+                        <div class="parser-queue-head">
+                          <span class="parser-queue-title">待执行</span>
+                          <span class="parser-queue-total">{{ pendingCommandCount }}</span>
+                        </div>
+                        <div class="parser-queue-chips">
+                          <template v-for="stat in pendingCategoryStats" :key="'overlay-pd-' + stat.key">
+                            <span v-if="stat.count > 0" class="summary-chip type-chip" :class="stat.key">{{ stat.label }} {{ stat.count }}</span>
+                          </template>
+                          <span v-if="pendingCommandCount === 0" class="parser-queue-empty">暂无</span>
+                          <span v-else-if="!pendingCategoryStats.some((s) => s.count > 0)" class="parser-queue-empty">待分类</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="parser-panels">
+                      <article class="parser-card parser-card-executed">
+                        <div class="parser-card-head">
+                          <div>
+                            <h3>已执行指令</h3>
+                          </div>
+                          <span class="parser-count">{{ executedCommandCount }}</span>
+                        </div>
+                        <div class="parser-tabs-strip parser-tabs-strip-executed" role="tablist" aria-label="已执行指令分类">
+                          <button
+                            v-for="tab in commandParserTabs"
+                            :key="'overlay-ex-tab-' + tab.key"
+                            type="button"
+                            class="parser-tab-chip"
+                            role="tab"
+                            :aria-selected="activeExecutedCommandTab === tab.key"
+                            :class="{ active: activeExecutedCommandTab === tab.key }"
+                            @click="activeExecutedCommandTab = tab.key"
+                          >
+                            <span class="parser-tab-chip-label">{{ tab.label }}</span>
+                            <span class="parser-tab-chip-badge">{{ executedTabCounts[tab.key] ?? 0 }}</span>
+                          </button>
+                        </div>
+                        <div v-if="executedCommandCount && filteredExecutedCommandRows.length" class="parser-list">
+                          <article
+                            v-for="row in filteredExecutedCommandRows"
+                            :key="`overlay-done-${row.executionOrder}-${row.summary}`"
+                            class="parser-row executed"
+                          >
+                            <div class="parser-row-main">
+                              <span class="parser-order">{{ row.executionOrder }}</span>
+                              <div class="parser-copy">
+                                <strong>{{ row.cnSummary || row.summary }}</strong>
+                                <small>{{ row.executedTimeLabel }}</small>
+                              </div>
+                            </div>
+                            <span class="type-chip" :class="row.category">{{ row.categoryLabel }}</span>
+                          </article>
+                        </div>
+                        <div v-else-if="executedCommandCount" class="empty-state compact parser-tab-empty">
+                          <h3>该分类下暂无已执行指令</h3>
+                        </div>
+                        <div v-else class="empty-state compact">
+                          <h3>暂时还没有已执行指令</h3>
+                        </div>
+                      </article>
+
+                      <article class="parser-card parser-card-pending">
+                        <div class="parser-card-head">
+                          <div>
+                            <h3>待执行指令</h3>
+                          </div>
+                          <span class="parser-count">{{ pendingCommandCount }}</span>
+                        </div>
+                        <div class="parser-tabs-strip parser-tabs-strip-pending" role="tablist" aria-label="待执行指令分类">
+                          <button
+                            v-for="tab in commandParserTabs"
+                            :key="'overlay-pd-tab-' + tab.key"
+                            type="button"
+                            class="parser-tab-chip"
+                            role="tab"
+                            :aria-selected="activePendingCommandTab === tab.key"
+                            :class="{ active: activePendingCommandTab === tab.key }"
+                            @click="activePendingCommandTab = tab.key"
+                          >
+                            <span class="parser-tab-chip-label">{{ tab.label }}</span>
+                            <span class="parser-tab-chip-badge">{{ pendingTabCounts[tab.key] ?? 0 }}</span>
+                          </button>
+                        </div>
+                        <div v-if="pendingCommandCount && filteredPendingCommandRows.length" class="parser-list">
+                          <article
+                            v-for="(row, idx) in filteredPendingCommandRows"
+                            :key="`overlay-pd-${row.order}-${row.summary}-${idx}`"
+                            class="parser-row pending"
+                            :class="{ 'cmd-incoming': row.isNew }"
+                          >
+                            <div class="parser-row-main">
+                              <span class="parser-order">{{ row.order }}</span>
+                              <div class="parser-copy">
+                                <strong>{{ row.cnSummary || row.summary }}</strong>
+                                <small>{{ row.cnDetail }}</small>
+                              </div>
+                            </div>
+                            <span class="type-chip" :class="row.category">{{ row.categoryLabel }}</span>
+                          </article>
+                        </div>
+                        <div v-else-if="pendingCommandCount" class="empty-state compact parser-tab-empty">
+                          <h3>该分类下暂无待执行指令</h3>
+                        </div>
+                        <div v-else class="empty-state compact">
+                          <h3>当前没有待执行指令</h3>
+                        </div>
+                      </article>
+                    </div>
+                  </article>
+                </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div class="workspace-grid two-column-layout">
+          <div class="left-column-fixed">
+            <section class="panel panel-left">
+              <div class="panel-head">
+                <div>
+                  <h2>战场态势沙盘</h2>
+                </div>
+                <span class="panel-meta">{{ minimapMetaLine }}</span>
+              </div>
+
+              <div v-if="minimapFrame" class="minimap-layout minimap-layout--home-clone">
+                <div class="minimap-stage minimap-stage--large minimap-stage--home-clone">
+                  <div class="minimap-frame minimap-frame--large minimap-frame--home-clone" :class="{ 'minimap-frame--base-only': !liveUiArmed }">
+                    <div class="minimap-layer minimap-layer--base">
+                      <img
+                        src="./R.jpg"
+                        alt="小地图底图"
+                        class="minimap-base-image"
+                        :style="minimapBaseImageStyle"
+                        @load="onMinimapBaseImageLoad"
+                      />
+                    </div>
+                    <!-- 迷雾层：由主页沙盘独立配置控制 -->
+                    <div v-if="homeMinimapConfig.showFog" class="minimap-layer minimap-layer--fog" aria-hidden="true">
+                      <img
+                        v-if="fogCanvasDataUrl"
+                        :src="fogCanvasDataUrl"
+                        class="minimap-fog-image"
+                        alt=""
+                        draggable="false"
+                      />
+                    </div>
+                    <div class="minimap-layer minimap-layer--threat-heat" aria-hidden="true"></div>
+                    <!-- 资源层：由主页沙盘独立配置控制 -->
+                    <div v-if="homeMinimapConfig.showResources" class="minimap-layer minimap-layer--resources" aria-label="矿区资源标记">
+                      <div
+                        v-for="resource in minimapResourceMarkers"
+                        :key="'main-resource-' + (resource.key || resource.label)"
+                        class="minimap-resource-marker"
+                        :style="resourceMarkerStyle(resource)"
+                        :title="`矿区资源 ${resource.label}`"
+                      >
+                        <span></span>
+                      </div>
+                    </div>
+                    <!-- 范围圈层：由主页沙盘独立配置控制 -->
+                    <div v-if="homeMinimapConfig.showRangeCircles" class="minimap-layer minimap-layer--range-circles" aria-hidden="true">
+                      <div
+                        v-for="circle in minimapRangeCircles"
+                        :key="'home-range-' + circle.key"
+                        class="minimap-range-circle"
+                        :class="['side-' + circle.side, 'role-' + circle.role]"
+                        :style="rangeCircleStyle(circle)"
+                        :title="`${circle.name} ${circle.role === 'scout' ? '侦察' : circle.role === 'strike' ? '打击' : '防御'}范围`"
+                      ></div>
+                    </div>
+                    <!-- 单元标记层：由主页沙盘独立配置控制 -->
+                    <div v-if="homeMinimapConfig.showUnits" class="minimap-layer minimap-layer--unit-markers" aria-label="后台单元标记">
+                      <div
+                        v-for="marker in minimapUnitMarkers"
+                        :key="'main-' + marker.key"
+                        class="minimap-unit-marker"
+                        :class="[marker.side, marker.role]"
+                        :style="unitMarkerStyle(marker)"
+                        :title="unitMarkerTitle(marker)"
+                      >
+                        <span class="unit-marker-halo"></span>
+                        <span class="unit-marker-core"></span>
+                        <span class="unit-marker-label">{{ marker.locationLabel }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <aside class="minimap-info-block minimap-info-block--home-clone">
+                  <article class="legend-card">
+                    <div class="legend-list">
+                      <div
+                        v-for="item in minimapLegend"
+                        :key="'home-leg-' + item.label"
+                        class="legend-row"
+                        :title="item.note"
+                        :aria-label="`${item.label}：${item.note}`"
+                      >
+                        <span class="legend-swatch" :class="item.className"></span>
+                        <div class="legend-copy">
+                          <strong>{{ item.label }}</strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="minimap-mapping-panel">
+                      <button
+                        type="button"
+                        class="minimap-mapping-toggle"
+                        :class="{ open: minimapMappingOpen }"
+                        @click="minimapMappingOpen = !minimapMappingOpen"
+                        aria-label="映射调整"
+                      >
+                        <span>映射调整</span>
+                        <span class="minimap-mapping-toggle-arrow">▾</span>
+                      </button>
+                      <div v-show="minimapMappingOpen" class="minimap-mapping-controls">
+                        <div class="minimap-mapping-row">
+                          <span class="minimap-mapping-label">X 偏移</span>
+                          <button type="button" class="minimap-mapping-btn" @click="adjustMinimapMapping('x', -0.5)">−</button>
+                          <span class="minimap-mapping-val">{{ minimapStatus.offsetX }}</span>
+                          <button type="button" class="minimap-mapping-btn" @click="adjustMinimapMapping('x', 0.5)">+</button>
+                        </div>
+                        <div class="minimap-mapping-row">
+                          <span class="minimap-mapping-label">Y 偏移</span>
+                          <button type="button" class="minimap-mapping-btn" @click="adjustMinimapMapping('y', -0.5)">−</button>
+                          <span class="minimap-mapping-val">{{ minimapStatus.offsetY }}</span>
+                          <button type="button" class="minimap-mapping-btn" @click="adjustMinimapMapping('y', 0.5)">+</button>
+                        </div>
+                        <div class="minimap-mapping-row">
+                          <span class="minimap-mapping-label">缩放</span>
+                          <button type="button" class="minimap-mapping-btn" @click="adjustMinimapMapping('scale', -0.01)">−</button>
+                          <span class="minimap-mapping-val">{{ minimapStatus.scale }}</span>
+                          <button type="button" class="minimap-mapping-btn" @click="adjustMinimapMapping('scale', 0.01)">+</button>
+                        </div>
+                        <div class="minimap-mapping-row">
+                          <span class="minimap-mapping-label">底图 X</span>
+                          <button type="button" class="minimap-mapping-btn" @click="adjustMinimapBaseScale('x', -0.01)">−</button>
+                          <span class="minimap-mapping-val">{{ minimapStatus.baseScaleX }}</span>
+                          <button type="button" class="minimap-mapping-btn" @click="adjustMinimapBaseScale('x', 0.01)">+</button>
+                        </div>
+                        <div class="minimap-mapping-row">
+                          <span class="minimap-mapping-label">底图 Y</span>
+                          <button type="button" class="minimap-mapping-btn" @click="adjustMinimapBaseScale('y', -0.01)">−</button>
+                          <span class="minimap-mapping-val">{{ minimapStatus.baseScaleY }}</span>
+                          <button type="button" class="minimap-mapping-btn" @click="adjustMinimapBaseScale('y', 0.01)">+</button>
+                        </div>
+                        <button type="button" class="minimap-mapping-reset" @click="resetMinimapMapping()">重置默认</button>
+                      </div>
+                    </div>
+
+                    <div class="minimap-status-panel" aria-label="沙盘状态">
+                      <div class="minimap-status-title">沙盘状态：</div>
+                      <div class="minimap-status-row"><b>帧</b><span>{{ minimapStatus.frame }}</span></div>
+                      <div class="minimap-status-row"><b>回合</b><span>{{ minimapStatus.loop }}</span></div>
+                      <div class="minimap-status-row"><b>标记</b><span>{{ minimapStatus.markers }}</span></div>
+                      <div class="minimap-status-vision">
+                        <div class="minimap-status-section-title">视野</div>
+                        <div
+                          v-for="(line, idx) in minimapVisionLines"
+                          :key="'home-map-vision-' + idx"
+                          class="minimap-status-row minimap-status-vision-line"
+                          :class="line.className"
+                        >
+                          <b>{{ line.label }}</b><span>{{ line.value }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+                </aside>
+              </div>
+
+              <div v-else class="empty-state">
+                <h3>等待小地图帧</h3>
+                <p>对局开始导出特征层后，左侧会自动切换为实时小地图并叠加关键目标点。</p>
+              </div>
+            </section>
+            <section class="panel panel-left-bottom-placeholder">
+              <div class="panel-head">
+                <div>
+                  <h2>态势推演问答</h2>
+                </div>
+                <span class="panel-meta">态势问询 / 语义检索 / 战术建议</span>
+              </div>
+              <div class="ask-panel-body">
+                <div ref="askPanelDialog" class="ask-panel-dialog" :class="{ empty: !(askPanel.messages && askPanel.messages.length) }">
+                  <div v-if="!(askPanel.messages && askPanel.messages.length)" class="ask-panel-empty-center">
+                    <p>开始态势问询，系统将结合当前态势给出分析建议。</p>
+                  </div>
+                  <div v-else class="ask-dialog-list">
+                    <div v-for="(msg, idx) in askPanel.messages" :key="`ask-msg-${idx}`" class="ask-msg-row" :class="msg.role">
+                      <article class="ask-msg-bubble">
+                        <div v-if="msg.role === 'assistant'" class="chat-content chat-markdown" v-html="renderMarkdown(msg.content)"></div>
+                        <div v-else class="chat-content">{{ msg.content }}</div>
+                        <div class="ask-msg-meta">
+                          <span>{{ msg.time || "--:--:--" }}</span>
+                          <span v-if="msg.source">来源：{{ msg.source }}</span>
+                        </div>
+                        <div v-if="msg.role === 'assistant' && msg.traces && msg.traces.length" class="ask-trace-list">
+                          <span v-for="(t, tIdx) in msg.traces" :key="`ask-trace-${idx}-${tIdx}`" class="summary-chip">{{ t }}</span>
+                        </div>
+                      </article>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="ask-panel-composer">
+                  <textarea
+                    v-model="askPanel.question"
+                    class="ask-panel-textarea"
+                    placeholder="输入提问内容，例如：敌方主力可能从哪一路进攻？我方应先守还是先扩？"
+                  ></textarea>
+                  <div class="planner-task-toolbar ask-panel-toolbar">
+                    <button type="button" class="planner-task-history-toggle" :disabled="askPanel.loading" @click="submitAskPanel()">
+                      {{ askPanel.loading ? "正在提问..." : "发送提问" }}
+                    </button>
+                  </div>
+                </div>
+
+                <div v-if="askPanel.errorText" class="ask-panel-answer">
+                  <div class="parser-queue-empty">{{ askPanel.errorText }}</div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <section class="panel panel-right-layers">
+            <div class="panel-head panel-head--situation-analysis">
+              <div>
+                <h2>态势分析系统</h2>
+              </div>
+              <div class="situation-analysis-head-actions planner-task-toolbar">
+                <span class="panel-meta situation-analysis-head-meta">{{ rightLayerMeta }}</span>
+                <button
+                  type="button"
+                  class="layer-switch-overview-btn"
+                  :class="{ active: activeRightLayer === 'overview' }"
+                  @click="activeRightLayer = 'overview'"
+                >
+                  系统总览
+                </button>
+                <button type="button" class="planner-task-history-toggle situation-analysis-refresh-btn" :disabled="deerflowRiskLoading" @click="refreshDeerflowRisk()">
+                  {{ deerflowRiskLoading ? "智能体分析中..." : "刷新分析" }}
+                </button>
+              </div>
+            </div>
+            <div class="layer-switch-bar" role="tablist" aria-label="态势分析模块切换">
+              <button
+                v-for="opt in rightLayerTabOptions"
+                :key="`layer-top-${opt.key}`"
+                type="button"
+                role="tab"
+                :aria-selected="activeRightLayer === opt.key"
+                :class="{ active: activeRightLayer === opt.key }"
+                @click="activeRightLayer = opt.key"
+              >
+                {{ opt.label }}
+              </button>
+            </div>
+
+            <div class="right-layer-stage">
+              <div class="right-layer-content-frame">
+                <section v-show="activeRightLayer === 'overview'" class="right-layer-empty overview-arch">
+                  <div class="sys-arch-page">
+                    <div class="sys-arch-header">
+                      <h3>业务架构</h3>
+                    </div>
+                    <div class="sys-arch-main">
+                      <div class="sys-arch-canvas" ref="sysArchCanvas">
+                        <!-- 分区虚线框：见 .sys-arch-band--decision / --knowledge（与 DOM 同源，随 flex 与响应式对齐） -->
+
+                        <!-- 先验知识：战法库 → 意图推理与态势研判（随布局实时对齐） -->
+                        <div v-show="activeRightLayer === 'overview'" class="sys-arch-dynamic-links" aria-hidden="true">
+                          <svg class="sys-arch-dynamic-links__svg" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                              <marker
+                                id="arch-tip-kb-macro-dyn"
+                                markerUnits="userSpaceOnUse"
+                                refX="9"
+                                refY="5"
+                                markerWidth="10"
+                                markerHeight="10"
+                                orient="auto"
+                                viewBox="0 0 10 10"
+                              >
+                                <path d="M 0 0 L 10 5 L 0 10 Z" fill="#c4b5fd" opacity="0.92" />
+                              </marker>
+                              <marker
+                                id="arch-tip-decision-dyn"
+                                markerUnits="userSpaceOnUse"
+                                refX="11"
+                                refY="6"
+                                markerWidth="12"
+                                markerHeight="12"
+                                orient="auto"
+                                viewBox="0 0 12 12"
+                              >
+                                <path d="M 0 0 L 12 6 L 0 12 Z" fill="#cbd5e1" opacity="0.96" />
+                              </marker>
+                              <marker
+                                id="arch-tip-bt-feedback-dyn"
+                                markerUnits="userSpaceOnUse"
+                                refX="9"
+                                refY="5"
+                                markerWidth="10"
+                                markerHeight="10"
+                                orient="auto"
+                                viewBox="0 0 10 10"
+                              >
+                                <path d="M 0 0 L 10 5 L 0 10 Z" fill="#fbbf24" opacity="0.92" />
+                              </marker>
+                            </defs>
+                            <path
+                              v-if="sysArchKbMacroPathD"
+                              class="sys-arch-dynamic-links__path sys-arch-dynamic-links__path--kb-macro"
+                              :d="sysArchKbMacroPathD"
+                              fill="none"
+                              stroke="#818cf8"
+                              stroke-opacity="0.88"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              marker-end="url(#arch-tip-kb-macro-dyn)"
+                            />
+                            <path
+                              v-for="(seg, idx) in sysArchDecisionLinkDs"
+                              :key="'sys-arch-dec-' + idx"
+                              class="sys-arch-dynamic-links__path sys-arch-dynamic-links__path--decision"
+                              :d="seg"
+                              fill="none"
+                              stroke="#94a3b8"
+                              stroke-opacity="0.95"
+                              stroke-width="1.65"
+                              stroke-linecap="butt"
+                              stroke-linejoin="miter"
+                              marker-end="url(#arch-tip-decision-dyn)"
+                            />
+                            <path
+                              v-if="sysArchBtFeedbackPathD"
+                              class="sys-arch-dynamic-links__path sys-arch-dynamic-links__path--bt-feedback"
+                              :d="sysArchBtFeedbackPathD"
+                              fill="none"
+                              stroke="#f59e0b"
+                              stroke-opacity="0.88"
+                              stroke-width="1.5"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              marker-end="url(#arch-tip-bt-feedback-dyn)"
+                            />
+                          </svg>
+                        </div>
+
+                        <div class="sys-arch-stack" ref="sysArchStack">
+                          <section class="sys-arch-band sys-arch-band--decision" aria-label="智能决策与控制">
+                            <div class="sys-arch-band-head">
+                              <span class="sys-arch-band-chip sys-arch-band-chip--online">智能决策与控制</span>
+                            </div>
+                            <div class="sys-arch-band-cards sys-arch-band-cards--four">
+                              <article class="sys-node n-input">
+                                <span id="sys-arch-anchor-input-right" class="sys-arch-link-anchor sys-arch-link-anchor--edge-right" aria-hidden="true"></span>
+                                <h4>全局态势感知与态势计算</h4>
+                                <p><span class="sys-arch-role-label">功能描述：</span>融合战争迷雾视界、经济指标与兵力拓扑结构，构建完备的战场态势信息</p>
+                                <p>
+                                  <span class="sys-arch-role-label">Skills：</span>
+                                </p>
+                                <div class="sys-bt-grid sys-bt-grid--two">
+                                  <button type="button" @click="activeRightLayer = 'awareness'">态势感知</button>
+                                  <button type="button" @click="activeRightLayer = 'force'">兵力布势</button>
+                                </div>
+                              </article>
+                              <article class="sys-node n-macro">
+                                <span id="sys-arch-anchor-macro-left" class="sys-arch-link-anchor sys-arch-link-anchor--edge-left" aria-hidden="true"></span>
+                                <h4>意图推理与态势研判</h4>
+                                <p>
+                                  <span class="sys-arch-role-label">功能描述：</span>面向实时对抗，将态势信息编排为多阶段子智能体流水线，逐层产出从事实→量化→布势→意图→风险→处置的宏观态势研判。
+                                </p>
+                                <p>
+                                  <span class="sys-arch-role-label">Skills：</span>
+                                </p>
+                                <div class="sys-bt-grid sys-bt-grid--arch">
+                                  <button type="button" @click="activeRightLayer = 'intent'">意图识别</button>
+                                  <button type="button" @click="activeRightLayer = 'risk'">风险分析</button>
+                                  <button type="button" @click="activeRightLayer = 'killchain'">杀伤链</button>
+                                  <button type="button" @click="activeRightLayer = 'critical'">关键节点</button>
+                                </div>
+                                <span id="sys-arch-anchor-macro-right" class="sys-arch-link-anchor sys-arch-link-anchor--edge-right" aria-hidden="true"></span>
+                                <span id="sys-arch-anchor-macro-bottom" class="sys-arch-link-anchor sys-arch-link-anchor--macro-btm" aria-hidden="true"></span>
+                              </article>
+                              <article class="sys-node n-fsm">
+                                <span id="sys-arch-anchor-fsm-left" class="sys-arch-link-anchor sys-arch-link-anchor--edge-left" aria-hidden="true"></span>
+                                <h4>战术指令解析与执行</h4>
+                                <p>
+                                  <span class="sys-arch-role-label">功能描述：</span>总线协同、任务划分、单元指定、指令解析闭环执行。
+                                </p>
+                                <p>
+                                  <span class="sys-arch-role-label">Skills：</span>
+                                </p>
+                                <div class="sys-bt-grid sys-bt-grid--two">
+                                  <button type="button" @click="activeRightLayer = 'plan'">任务生成</button>
+                                </div>
+                                <span id="sys-arch-anchor-fsm-right" class="sys-arch-link-anchor sys-arch-link-anchor--edge-right" aria-hidden="true"></span>
+                              </article>
+                              <article class="sys-node-bt">
+                                <span id="sys-arch-anchor-bt-left" class="sys-arch-link-anchor sys-arch-link-anchor--edge-left" aria-hidden="true"></span>
+                                <h4>多阶段战术分解</h4>
+                                <p>
+                                  <span class="sys-arch-role-label">功能描述：</span>将宏观战略意图解析为多阶段战术子任务，通过任务规划智能体将子任务下发至各作战单元
+                                </p>
+                                <span id="sys-arch-anchor-bt-bottom" class="sys-arch-link-anchor sys-arch-link-anchor--macro-btm" aria-hidden="true"></span>
+                              </article>
+                            </div>
+                          </section>
+
+                          <section class="sys-arch-band sys-arch-band--knowledge" aria-label="知识库构建">
+                            <div class="sys-arch-band-head">
+                              <span class="sys-arch-band-chip sys-arch-band-chip--offline">知识库构建</span>
+                            </div>
+                            <div class="sys-arch-band-cards sys-arch-band-cards--two sys-arch-band-cards--knowledge-narrow sys-arch-band-cards--knowledge-flow">
+                              <article class="sys-node n-knowledge">
+                                <span id="sys-arch-anchor-kb-top" class="sys-arch-link-anchor sys-arch-link-anchor--kb-top" aria-hidden="true"></span>
+                                <h4>战术战法库</h4>
+                                <p>将历史对抗样本结构化，提取特征制约关系，为宏观策略规划提供先验知识支撑。</p>
+                              </article>
+                              <div class="sys-arch-card-bridge sys-arch-card-bridge--feedback" role="group" aria-label="评估沉淀：结论回流更新战法库">
+                                <div class="sys-arch-card-bridge__track" aria-hidden="true">
+                                  <span class="sys-arch-card-bridge__head"></span>
+                                  <span class="sys-arch-card-bridge__shaft"></span>
+                                </div>
+                                <p class="sys-arch-card-bridge__caption">评估结论回流、沉淀至战法库（闭环更新）</p>
+                              </div>
+                              <article class="sys-node n-feedback">
+                                <span id="sys-arch-anchor-feedback-top" class="sys-arch-link-anchor sys-arch-link-anchor--kb-top" aria-hidden="true"></span>
+                                <h4>战术战法评估</h4>
+                                <p>基于对局时间序列提取关键状态节点，进行策略瓶颈分析与智能体能力归因。</p>
+                              </article>
+                            </div>
+                          </section>
+                        </div>
+
+                        <div class="sys-arch-time-tag sys-arch-time-tag--corner">策略迭代：知识库闭环更新机制</div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+              </div>
+            </div>
+          </section>
+          </div>
+        </main>
+
+        <footer class="page-footer">
+          <span>轮询间隔 {{ refreshSeconds.toFixed(1) }} 秒</span>
+          <span>{{ footerStatus }}</span>
+        </footer>
+
+      </div>
+    </div>
+  </body>
+</html>

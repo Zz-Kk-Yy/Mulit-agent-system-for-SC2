@@ -1,0 +1,35 @@
+SwarmBrain 前后端运行包（精简文件）
+================================
+
+一、本包内含
+-----------
+- 后端：swarmbrain_launch.py（对局主程序）、swarmbrain.py（LLM）、dashboard_state.py、feature_map_exporter.py、serve_dashboard.py
+- 前端：dashboard/、game-view/、启动后由程序刷新的 dashboard_state.json（已带一份初始占位）
+- 依赖与环境：requirements.txt、.env.example、run_swarmbrain.example.ps1、README.md
+
+二、环境准备（首次）
+-----------
+1. 安装 Python 3.10–3.12（64 位），并安装星际争霸 II 与地图 AutomatonLE（见 README）。
+2. 在项目根目录打开 PowerShell：
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   python -m pip install -U pip
+   pip install -r requirements.txt
+3. 复制 .env.example 为 .env，填写 SWARMBRAIN_LLM_API_KEY；或设置环境变量 SC2PATH、SWARMBRAIN_LLM_API_KEY 等。
+
+三、启动顺序
+-----------
+【推荐·两终端】终端 A：.\launch_ask_stack.ps1（Docker Redis + 问答 API；Key 写在 .env 或环境里）
+          终端 B：python swarmbrain_launch.py（对局；内含 Redis 后台同步，不写 dashboard_state 时无需单独 dashboard_to_redis_bridge）
+
+仪表盘网页（可选）：另开终端 `python serve_dashboard.py`，浏览器 http://127.0.0.1:8000/dashboard/
+问答 API（默认端口）：http://127.0.0.1:8011/health
+
+四、完整部署
+-----------
+- 详细步骤见压缩包内「部署文档.md」或 docs/部署文档.md（环境、.env、全栈启动、验收清单）。
+
+五、说明
+-----------
+- 未包含 .venv、录像、大体积缓存；接手人需自行 pip 安装。
+- 压缩包内 .env 可能含真实 API Key，请勿上传到公开仓库。

@@ -1,0 +1,30 @@
+# Gate v0.3 variance-calibration supplement v0.2. New file; do not edit
+# pilot_dual_llm_gate_supplement_v0.1.yaml or historical cover yaml.
+# Strategy knobs copy v0.1 except config_name/version. Not a smoke config:
+# attack_min_army is not 0, attack_every is not 40, max_game_time_sec is not 420.
+config_name: pilot_dual_llm_gate_supplement_v02
+config_version: "2.0.0"
+prompt_template_version: swarmbrain_zvz_opening_ingame_v1
+fallback_strategy_version: none_v1
+
+map_name: AutomatonLE
+player_1_race: Zerg
+player_2_race: Zerg
+
+realtime: false
+
+macro_every: 45
+building_every: 25
+attack_every: 150
+attack_min_army: 12
+
+max_game_time_sec: 600
+
+model_provider: openai_compatible
+model_name: null
+temperature: null
+
+random_seed: null
+random_seed_strategy: generate_per_run_if_unset
+
+disable_redis_bridge: true

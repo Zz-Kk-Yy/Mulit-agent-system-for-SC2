@@ -1,0 +1,32 @@
+{
+  "own_clusters": [
+    {
+      "center": [45, 52],
+      "unit_count": 28,
+      "dps_ground": 160.0,
+      "dps_air": 10.0,
+      "composition": {"Zergling": 20, "Roach": 8},
+      "role": "main_army"
+    }
+  ],
+  "enemy_clusters": [
+    {
+      "center": [118, 108],
+      "unit_count": 18,
+      "dps_ground": 88.0,
+      "dps_air": 0.0,
+      "composition": {"Marine": 16, "SiegeTank": 2},
+      "role": "offense",
+      "confidence": 0.85
+    }
+  ],
+  "frontline": {
+    "own_forward": [62, 70],
+    "enemy_forward": [95, 95],
+    "distance": 38.5,
+    "no_mans_land": [[72, 78], [80, 85]]
+  },
+  "weak_points": [
+    {"owner": "self", "location": [30, 40], "reason": "分矿处仅有少量单位"}
+  ]
+}

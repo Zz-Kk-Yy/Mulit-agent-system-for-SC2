@@ -1,0 +1,15 @@
+{
+  "risks": [
+    {
+      "rank": 1,
+      "target": "enemy_cluster_0",
+      "location": [118, 108],
+      "threat_score": 0.92,
+      "threat_type": "army_push",
+      "time_to_impact_sec": 40,
+      "recommended_counters": ["Roach", "Ravager"],
+      "reasoning": "坦克海推进，需远程或腐蚀弹应对"
+    }
+  ],
+  "overall_risk_level": "high"
+}

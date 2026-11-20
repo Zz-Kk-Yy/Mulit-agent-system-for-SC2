@@ -1,0 +1,47 @@
+{
+  "run_id": "20260726T094641Z_b6fa2ba6",
+  "validation_status": "fail",
+  "error_count": 4,
+  "warning_count": 1,
+  "failed_rules": [
+    "pilot rejects test_time_limit termination: test_time_limit",
+    "pilot rejects Undecided replay_result",
+    "pilot rejects Tie-only runtime result",
+    "pilot requires Victory/Defeat runtime_result got={'player_1': 'Result.Tie', 'player_2': 'Result.Tie'}"
+  ],
+  "warnings": [
+    "runtime_result != replay_result runtime={'player_1': 'Result.Tie', 'player_2': 'Result.Tie'} replay={'player_1': 'Undecided', 'player_2': 'Undecided'} termination_reason=test_time_limit result_source=runtime_and_replay"
+  ],
+  "pass_count": 30,
+  "replay_sha256": "a75d5a6e1b629618d66783ab143f58d7d4e8bac22edc67ba2b05ad6289993adb",
+  "base_build": 96516,
+  "data_version": "B5A551ED8B1A137FFFCC2BA50EC63173",
+  "replay_final_game_loop": 60482,
+  "channel_counts": {
+    "opening": 3,
+    "building": 50,
+    "macro": 12,
+    "attack": 111
+  },
+  "fallback_count": 0,
+  "failed_llm_count": 0,
+  "command_lifecycle_stats": {
+    "command_proposed": 1355,
+    "command_accepted": 414,
+    "command_filtered": 941,
+    "command_dispatched": 216,
+    "command_succeeded": 215,
+    "command_skipped": 198
+  },
+  "termination_reason": "test_time_limit",
+  "config_name": "pilot_dual_llm_v1",
+  "config_sha256": "42573202143c8c593592b3f7b9c8e295b9afb83aab3c96b8e28a09df0ee74b60",
+  "runtime_result": {
+    "player_1": "Result.Tie",
+    "player_2": "Result.Tie"
+  },
+  "replay_result": {
+    "player_1": "Undecided",
+    "player_2": "Undecided"
+  }
+}

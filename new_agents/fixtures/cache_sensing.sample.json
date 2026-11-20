@@ -1,0 +1,23 @@
+{
+  "game_loop": 5280,
+  "game_time": "5:20",
+  "player_id": 1,
+  "own": {
+    "units": {"Zergling": 24, "Roach": 8},
+    "buildings": {"Hatchery": 2, "Extractor": 2},
+    "supply_used": 56,
+    "supply_cap": 69,
+    "minerals": 420,
+    "vespene": 180,
+    "workers": 36,
+    "bases": 2
+  },
+  "enemy": {
+    "units": {"Marine": 16, "SiegeTank": 2},
+    "buildings": {"Barracks": 1},
+    "visible_supply": 20,
+    "bases_seen": 1
+  },
+  "map": {"name": "AutomatonLE", "size": null, "start_location": [29, 65]},
+  "vision": {"visible_tiles_pct": 0.42, "enemy_base_visible": false}
+}

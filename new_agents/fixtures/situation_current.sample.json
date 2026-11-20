@@ -1,0 +1,54 @@
+{
+  "raw": {
+    "game_loop": 5280,
+    "game_time": 320.0,
+    "time_formatted": "t=5:20",
+    "iteration": 88,
+    "updated_at": "2026-05-31T10:00:00+00:00",
+    "player_id": 1,
+    "source": "dashboard_state"
+  },
+  "unit": {
+    "own_units": [
+      {"tag": "unit:Zergling:A4:0", "type": "Zergling", "count": 24, "location": "A4", "position": {"label": "A4"}, "action": "attack", "kind": "unit"},
+      {"tag": "unit:Roach:A5:1", "type": "Roach", "count": 8, "location": "A5", "position": {"label": "A5"}, "action": "move", "kind": "unit"}
+    ],
+    "own_structures": [
+      {"tag": "structure:Hatchery:A1:0", "type": "Hatchery", "count": 2, "location": "A1", "position": {"label": "A1"}, "kind": "structure"}
+    ],
+    "enemy_units": [
+      {"tag": "unit:Marine:B6:0", "type": "Marine", "count": 16, "location": "B6", "position": {"label": "B6"}, "kind": "unit"},
+      {"tag": "unit:SiegeTank:B7:1", "type": "SiegeTank", "count": 2, "location": "B7", "position": {"label": "B7"}, "kind": "unit"}
+    ],
+    "own_unit_composition": [{"name": "Zergling", "count": 24}, {"name": "Roach", "count": 8}],
+    "enemy_visible_composition": [{"name": "Marine", "count": 16}, {"name": "SiegeTank", "count": 2}],
+    "army_count": 32,
+    "own_hp_total": 4200
+  },
+  "economy": {
+    "minerals": 420,
+    "vespene": 180,
+    "supply_used": 56,
+    "supply_cap": 69,
+    "workers": 36,
+    "pending_command_count": 1
+  },
+  "map": {
+    "map_name": "AutomatonLE",
+    "map_size": null,
+    "start_location": "A1",
+    "bases": [],
+    "game_stage": "mid",
+    "feature_session": "demo-session"
+  },
+  "vision": {
+    "visible_tiles_pct": 0.42,
+    "fog_of_war": 0.58,
+    "enemy_base_visible": false,
+    "enemy_units_visible": 18,
+    "enemy_structures_visible": 1
+  },
+  "messages": {},
+  "command_sequence": [],
+  "agent_workbench": {}
+}

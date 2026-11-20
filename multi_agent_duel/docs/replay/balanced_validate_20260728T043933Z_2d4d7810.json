@@ -1,0 +1,40 @@
+{
+  "run_id": "20260728T043933Z_2d4d7810",
+  "validation_status": "pass",
+  "error_count": 0,
+  "warning_count": 0,
+  "failed_rules": [],
+  "warnings": [],
+  "pass_count": 32,
+  "replay_sha256": "fbdd999b7d22920c6f28ba4b56c990435fa5669f69962f48230feb02b5c56ae5",
+  "base_build": 96516,
+  "data_version": "B5A551ED8B1A137FFFCC2BA50EC63173",
+  "replay_final_game_loop": 16736,
+  "channel_counts": {
+    "opening": 3,
+    "building": 13,
+    "macro": 6,
+    "attack": 22
+  },
+  "fallback_count": 0,
+  "failed_llm_count": 0,
+  "command_lifecycle_stats": {
+    "command_proposed": 386,
+    "command_accepted": 114,
+    "command_filtered": 272,
+    "command_dispatched": 36,
+    "command_succeeded": 36,
+    "command_skipped": 78
+  },
+  "termination_reason": "natural_end",
+  "config_name": "pilot_dual_llm_v1",
+  "config_sha256": "42573202143c8c593592b3f7b9c8e295b9afb83aab3c96b8e28a09df0ee74b60",
+  "runtime_result": {
+    "player_1": "Result.Victory",
+    "player_2": "Result.Defeat"
+  },
+  "replay_result": {
+    "player_1": "Win",
+    "player_2": "Loss"
+  }
+}

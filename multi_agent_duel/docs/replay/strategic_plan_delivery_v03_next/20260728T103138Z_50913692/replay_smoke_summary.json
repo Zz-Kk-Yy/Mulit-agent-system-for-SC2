@@ -1,0 +1,36 @@
+{
+  "run_id": "20260728T103138Z_50913692",
+  "replay_path": "E:\\star_carft\\SwarmBrain_re\\multi_agent_duel\\videos\\ZvZ_DualAgents_20260728T103138Z_50913692.SC2Replay",
+  "replay_sha256": "c44f2ce3ac4937aea1f08ce5239d9c04ba31e18a0a5b2d1656f878df61f163fc",
+  "replay_final_game_loop": 52400,
+  "observer_1_last_game_loop": 52400,
+  "observer_2_last_game_loop": 52400,
+  "observer_1_status": "pass",
+  "observer_2_status": "pass",
+  "observer_1_detail": {
+    "observed_id": 1,
+    "last_game_loop": 52400,
+    "steps": 820,
+    "status": "pass",
+    "error": null,
+    "elapsed_sec": 192.9,
+    "base_build": "Base96516",
+    "data_version": "B5A551ED8B1A137FFFCC2BA50EC63173"
+  },
+  "observer_2_detail": {
+    "observed_id": 2,
+    "last_game_loop": 52400,
+    "steps": 820,
+    "status": "pass",
+    "error": null,
+    "elapsed_sec": 191.4,
+    "base_build": "Base96516",
+    "data_version": "B5A551ED8B1A137FFFCC2BA50EC63173"
+  },
+  "covers_480_sec": true,
+  "covers_true_end": true,
+  "early_stall_detected": false,
+  "runtime_replay_result_consistent": true,
+  "header_parse_status": "ok",
+  "status": "pass"
+}
