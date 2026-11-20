@@ -1,4 +1,4 @@
-# SwarmBrain
+# Multi-agent System
 
 星际争霸 II LLM 智能体工程。**对局代码只在模式目录中**，根目录仅保留入口脚本、文档与工具。
 
